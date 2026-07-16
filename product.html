@@ -161,6 +161,9 @@
       <span class="text-bone" id="breadcrumbName">جاري التحميل...</span>
     </nav>
 
+    <!-- بانر حالة المنتج (بيظهر لصاحب المنتج بس، لو لسه قيد المراجعة أو اتم رفضه) -->
+    <div id="statusBanner" class="hidden mb-6 px-4 py-3 rounded-lg border text-sm flex items-center gap-2"></div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
       <!-- ============ العمود الرئيسي: المعرض + الوصف + التفاصيل ============ -->
@@ -371,15 +374,32 @@
 
   <script type="module">
     import { db, doc, getDoc } from './firebase-config.js';
+    import { auth, onAuthStateChanged } from './firebase-config.js';
     import { wireAuthHeader } from './auth-header.js';
 
     lucide.createIcons();
     wireAuthHeader();
 
+    let currentUser = null;
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (currentProduct) renderStatusBanner(currentProduct); // لو اليوزر ظهر بعد ما المنتج اتحمل
+    });
+
     const categoryLabels = {
       mobiles: 'موبايلات', electronics: 'إلكترونيات', furniture: 'أثاث ومنزل', cars: 'سيارات', fashion: 'أزياء', other: 'أخرى',
     };
-    const locationLabels = { cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', mansoura: 'المنصورة', other: 'محافظة أخرى' };
+    const locationLabels = {
+      cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', dakahlia: 'الدقهلية',
+      red_sea: 'البحر الأحمر', beheira: 'البحيرة', fayoum: 'الفيوم', gharbia: 'الغربية',
+      ismailia: 'الإسماعيلية', monufia: 'المنوفية', minya: 'المنيا', qalyubia: 'القليوبية',
+      new_valley: 'الوادي الجديد', suez: 'السويس', aswan: 'أسوان', assiut: 'أسيوط',
+      beni_suef: 'بني سويف', port_said: 'بورسعيد', damietta: 'دمياط', sharqia: 'الشرقية',
+      south_sinai: 'جنوب سيناء', kafr_el_sheikh: 'كفر الشيخ', matrouh: 'مطروح', luxor: 'الأقصر',
+      qena: 'قنا', north_sinai: 'شمال سيناء', sohag: 'سوهاج',
+      mansoura: 'المنصورة', // توافق مع منتجات قديمة اتنشرت قبل تحديث قائمة المحافظات
+      other: 'محافظة أخرى',
+    };
     const contactMethodLabels = { call: 'مكالمة فقط', chat: 'رسائل داخل الموقع', both: 'مكالمة أو رسائل' };
 
     let currentProduct = null;
@@ -409,15 +429,42 @@
         renderProduct(currentProduct);
       } catch (err) {
         console.error(err);
+        const isPermissionError = err && (err.code === 'permission-denied' || String(err.message).includes('permission'));
         document.querySelector('main').innerHTML = `
           <div class="text-center py-24">
-            <p class="text-rose-400">تعذر تحميل بيانات المنتج، حاول تحدّث الصفحة.</p>
+            <p class="text-muted">${
+              isPermissionError
+                ? 'المنتج ده لسه قيد المراجعة من الإدارة، أو مش متاح للعرض حالياً.'
+                : 'تعذر تحميل بيانات المنتج، حاول تحدّث الصفحة.'
+            } ارجع لصفحة <a href="search.html" class="text-gold-400 hover:underline">كل المنتجات</a>.</p>
           </div>`;
       }
     }
 
+    // ============ بانر حالة المنتج: بيظهر لصاحب المنتج بس لو لسه قيد المراجعة أو اتم رفضه ============
+    function renderStatusBanner(p) {
+      const banner = document.getElementById('statusBanner');
+      const isOwner = currentUser && p.ownerId === currentUser.uid;
+
+      if (!isOwner || !p.status || p.status === 'approved') {
+        banner.classList.add('hidden');
+        return;
+      }
+
+      if (p.status === 'pending') {
+        banner.className = 'mb-6 px-4 py-3 rounded-lg border text-sm flex items-center gap-2 border-gold-500/30 bg-gold-500/10 text-gold-300';
+        banner.innerHTML = `<i data-lucide="clock" class="w-4 h-4 shrink-0"></i> منتجك ده قيد المراجعة من الإدارة، وهيظهر لباقي المستخدمين بعد الموافقة عليه.`;
+      } else if (p.status === 'rejected') {
+        banner.className = 'mb-6 px-4 py-3 rounded-lg border text-sm flex items-center gap-2 border-rose-500/30 bg-rose-500/10 text-rose-300';
+        banner.innerHTML = `<i data-lucide="x-circle" class="w-4 h-4 shrink-0"></i> الإدارة رفضت نشر المنتج ده، وهو ظاهر لك بس مش ظاهر لباقي المستخدمين.`;
+      }
+      banner.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
     function renderProduct(p) {
       document.title = `${p.name} | دكان`;
+      renderStatusBanner(p);
 
       // العنوان والفتات (breadcrumb)
       document.getElementById('breadcrumbName').textContent = p.name;

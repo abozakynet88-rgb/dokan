@@ -80,7 +80,17 @@
     .toast-enter { animation: toast-in 0.35s ease-out forwards; }
     .toast-leave { animation: toast-out 0.3s ease-in forwards; }
 
-    /* ============ منطقة سحب وإفلات الصور ============ */
+    /* ============ إصلاح شكل القوائم المنسدلة (select) في المتصفح ============ */
+    /* من غير ده، بعض المتصفحات (خصوصاً على ويندوز) بتفتح قائمة الخيارات بخلفية
+       بيضا وخط أبيض فوقها فمش بيبان، لأن الـ select نفسه معمول له تصميم غامق
+       لكن قائمة الـ options بترسمها نظام التشغيل افتراضياً. الحل: نخلي المتصفح
+       يعرف إن التصميم غامق (color-scheme) ونحدد لون خلفية/خط كل option صراحةً */
+    select { color-scheme: dark; }
+    select option {
+      background-color: #1C1A14;
+      color: #F5F1E8;
+    }
+
     #dropzone {
       transition: border-color 0.25s ease, background-color 0.25s ease;
     }
@@ -264,7 +274,30 @@
                   <option value="cairo">القاهرة</option>
                   <option value="giza">الجيزة</option>
                   <option value="alex">الإسكندرية</option>
-                  <option value="mansoura">المنصورة</option>
+                  <option value="dakahlia">الدقهلية</option>
+                  <option value="red_sea">البحر الأحمر</option>
+                  <option value="beheira">البحيرة</option>
+                  <option value="fayoum">الفيوم</option>
+                  <option value="gharbia">الغربية</option>
+                  <option value="ismailia">الإسماعيلية</option>
+                  <option value="monufia">المنوفية</option>
+                  <option value="minya">المنيا</option>
+                  <option value="qalyubia">القليوبية</option>
+                  <option value="new_valley">الوادي الجديد</option>
+                  <option value="suez">السويس</option>
+                  <option value="aswan">أسوان</option>
+                  <option value="assiut">أسيوط</option>
+                  <option value="beni_suef">بني سويف</option>
+                  <option value="port_said">بورسعيد</option>
+                  <option value="damietta">دمياط</option>
+                  <option value="sharqia">الشرقية</option>
+                  <option value="south_sinai">جنوب سيناء</option>
+                  <option value="kafr_el_sheikh">كفر الشيخ</option>
+                  <option value="matrouh">مطروح</option>
+                  <option value="luxor">الأقصر</option>
+                  <option value="qena">قنا</option>
+                  <option value="north_sinai">شمال سيناء</option>
+                  <option value="sohag">سوهاج</option>
                   <option value="other">محافظة أخرى</option>
                 </select>
               </div>
@@ -367,7 +400,15 @@
     });
 
     const locationLabels = {
-      cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', mansoura: 'المنصورة', other: 'محافظة أخرى',
+      cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', dakahlia: 'الدقهلية',
+      red_sea: 'البحر الأحمر', beheira: 'البحيرة', fayoum: 'الفيوم', gharbia: 'الغربية',
+      ismailia: 'الإسماعيلية', monufia: 'المنوفية', minya: 'المنيا', qalyubia: 'القليوبية',
+      new_valley: 'الوادي الجديد', suez: 'السويس', aswan: 'أسوان', assiut: 'أسيوط',
+      beni_suef: 'بني سويف', port_said: 'بورسعيد', damietta: 'دمياط', sharqia: 'الشرقية',
+      south_sinai: 'جنوب سيناء', kafr_el_sheikh: 'كفر الشيخ', matrouh: 'مطروح', luxor: 'الأقصر',
+      qena: 'قنا', north_sinai: 'شمال سيناء', sohag: 'سوهاج',
+      mansoura: 'المنصورة', // توافق مع منتجات قديمة اتنشرت قبل تحديث قائمة المحافظات
+      other: 'محافظة أخرى',
     };
 
     // ============ رسالة النجاح المنبثقة (نفس نمط باقي صفحات الموقع) ============
@@ -660,11 +701,12 @@
           images: imageDataUrls,
           ownerId: currentUser.uid,
           ownerName: currentUser.displayName || 'مستخدم دكان',
+          status: 'pending', // كل منتج جديد بيتحط "قيد المراجعة" لغاية ما الأدمن يوافق عليه من لوحة التحكم
           views: 0,
           createdAt: serverTimestamp(),
         });
 
-        showToast('تم نشر منتجك بنجاح 🎉', 'إعلانك دلوقتي ظاهر لآلاف المشترين على دكان.');
+        showToast('تم إرسال منتجك للمراجعة 🎉', 'هيظهر لآلاف المشترين على دكان فور ما فريقنا يراجعه ويوافق عليه، عادةً خلال وقت قصير.');
 
         productForm.reset();
         uploadedImages = [];
@@ -676,7 +718,7 @@
         contactMethodValue.value = '';
         updateLivePreview();
 
-        setTimeout(() => (window.location.href = 'search.html'), 1200);
+        setTimeout(() => (window.location.href = 'index.html'), 1200);
       } catch (err) {
         console.error(err);
         const isTooLarge = String(err && err.message).toLowerCase().includes('longer than');

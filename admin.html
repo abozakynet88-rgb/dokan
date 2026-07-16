@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة تحكم الإدارة | دكان</title>
+
+  <!-- ============ Google Fonts: نفس نظام الخطوط المستخدم في باقي الموقع ============ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- ============ Tailwind CSS ============ -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0A0908',
+            surface: '#15130F',
+            surface2: '#1C1A14',
+            bone: '#F5F1E8',
+            muted: '#948E80',
+            gold: { 300: '#E8D488', 400: '#D9BB55', 500: '#C9A227', 600: '#A8811C' },
+            violet: { 300: '#C4B5FD', 400: '#A78BFA', 500: '#8B5CF6' },
+          },
+          fontFamily: {
+            display: ['Cairo', 'sans-serif'],
+            body: ['Tajawal', 'sans-serif'],
+            num: ['Inter', 'Tajawal', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ============ Lucide Icons ============ -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #0A0908;
+      background-image:
+        radial-gradient(ellipse 900px 650px at 88% -8%, rgba(201, 162, 39, 0.10), transparent 60%),
+        radial-gradient(ellipse 750px 550px at -8% 108%, rgba(139, 92, 246, 0.08), transparent 60%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+    ::selection { background: rgba(201, 162, 39, 0.35); color: #F5F1E8; }
+    .glow-gold:hover { box-shadow: 0 0 28px rgba(201, 162, 39, 0.35); }
+
+    .tab-btn.active {
+      border-color: rgba(201, 162, 39, 0.5);
+      color: #D9BB55;
+      background-color: rgba(201, 162, 39, 0.1);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-bone font-body antialiased">
+
+  <!-- =========================================================
+       هيدر مختصر (نفس هوية الموقع)
+       ========================================================= -->
+  <header class="w-full sticky top-0 z-50 bg-ink/85 backdrop-blur-md border-b border-white/[0.06]">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center gap-2 shrink-0 group">
+        <span class="text-2xl font-display font-extrabold text-bone group-hover:text-gold-400 transition-colors">دكان</span>
+        <span class="text-xs px-2 py-0.5 rounded-full border border-gold-500/40 text-gold-400 bg-gold-500/10">لوحة التحكم</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-sm text-muted hover:text-gold-400 transition-colors">رجوع للموقع</a>
+        <a href="auth.html" data-account-link class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 hover:border-gold-500/40 transition-colors flex items-center justify-center w-9 h-9" aria-label="الحساب">
+          <i data-lucide="user" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-8">
+
+    <!-- ============ حالة التحقق من الصلاحية (تظهر لحد ما نتأكد إنك أدمن) ============ -->
+    <div id="checkingState" class="flex flex-col items-center text-center py-24">
+      <i data-lucide="loader-2" class="w-8 h-8 text-gold-400 animate-spin mb-4"></i>
+      <p class="text-muted">جاري التحقق من صلاحياتك...</p>
+    </div>
+
+    <!-- ============ حالة "مفيش صلاحية" ============ -->
+    <div id="deniedState" class="hidden flex-col items-center text-center py-24">
+      <div class="w-14 h-14 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mb-4">
+        <i data-lucide="shield-x" class="w-7 h-7 text-rose-400"></i>
+      </div>
+      <h2 class="font-display font-bold text-lg mb-1">مفيش صلاحية وصول</h2>
+      <p class="text-muted text-sm max-w-sm">الصفحة دي مخصصة لأدمن الموقع بس. هنرجعك للصفحة الرئيسية خلال شوية.</p>
+    </div>
+
+    <!-- ============ محتوى لوحة التحكم (يظهر للأدمن فقط) ============ -->
+    <div id="adminContent" class="hidden">
+
+      <div class="mb-6">
+        <h1 class="text-2xl md:text-3xl font-display font-extrabold">لوحة تحكم المنتجات</h1>
+        <p class="text-muted text-sm mt-1">راجع المنتجات الجديدة ووافق عليها أو ارفضها قبل ما تظهر للجمهور</p>
+      </div>
+
+      <!-- تبويبات الحالة -->
+      <div class="flex items-center gap-2 mb-6 border-b border-white/[0.07] pb-4 flex-wrap">
+        <button data-tab="pending" class="tab-btn active px-4 py-2 rounded-full text-sm border border-white/10 text-muted transition-colors flex items-center gap-1.5">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i> قيد المراجعة
+          <span id="countPending" class="text-xs font-num bg-white/10 rounded-full px-1.5">0</span>
+        </button>
+        <button data-tab="approved" class="tab-btn px-4 py-2 rounded-full text-sm border border-white/10 text-muted transition-colors flex items-center gap-1.5">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> منشورة
+          <span id="countApproved" class="text-xs font-num bg-white/10 rounded-full px-1.5">0</span>
+        </button>
+        <button data-tab="rejected" class="tab-btn px-4 py-2 rounded-full text-sm border border-white/10 text-muted transition-colors flex items-center gap-1.5">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> مرفوضة
+          <span id="countRejected" class="text-xs font-num bg-white/10 rounded-full px-1.5">0</span>
+        </button>
+      </div>
+
+      <!-- شبكة المنتجات -->
+      <div id="productsList" class="space-y-4">
+        <p class="text-center text-muted text-sm py-10">جاري تحميل المنتجات...</p>
+      </div>
+
+      <div id="emptyTabState" class="hidden flex-col items-center text-center py-16">
+        <div class="w-14 h-14 rounded-full bg-surface border border-white/10 flex items-center justify-center mb-4">
+          <i data-lucide="inbox" class="w-7 h-7 text-muted"></i>
+        </div>
+        <h3 class="font-display font-bold text-lg mb-1">مفيش منتجات هنا دلوقتي</h3>
+        <p class="text-muted text-sm">أي منتج جديد بحالة مختلفة هيظهر هنا تلقائياً</p>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth, db, doc, getDoc, getDocs, updateDoc, deleteDoc, collection, query, where, orderBy } from './firebase-config.js';
+    import { wireAuthHeader, requireAuth } from './auth-header.js';
+
+    lucide.createIcons();
+    wireAuthHeader();
+
+    const categoryLabels = {
+      mobiles: 'موبايلات', electronics: 'إلكترونيات', furniture: 'أثاث ومنزل', cars: 'سيارات', fashion: 'أزياء', other: 'أخرى',
+    };
+    const locationLabels = {
+      cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', dakahlia: 'الدقهلية',
+      red_sea: 'البحر الأحمر', beheira: 'البحيرة', fayoum: 'الفيوم', gharbia: 'الغربية',
+      ismailia: 'الإسماعيلية', monufia: 'المنوفية', minya: 'المنيا', qalyubia: 'القليوبية',
+      new_valley: 'الوادي الجديد', suez: 'السويس', aswan: 'أسوان', assiut: 'أسيوط',
+      beni_suef: 'بني سويف', port_said: 'بورسعيد', damietta: 'دمياط', sharqia: 'الشرقية',
+      south_sinai: 'جنوب سيناء', kafr_el_sheikh: 'كفر الشيخ', matrouh: 'مطروح', luxor: 'الأقصر',
+      qena: 'قنا', north_sinai: 'شمال سيناء', sohag: 'سوهاج', mansoura: 'المنصورة', other: 'محافظة أخرى',
+    };
+
+    const checkingState = document.getElementById('checkingState');
+    const deniedState = document.getElementById('deniedState');
+    const adminContent = document.getElementById('adminContent');
+    const productsList = document.getElementById('productsList');
+    const emptyTabState = document.getElementById('emptyTabState');
+
+    let activeTab = 'pending';
+    let currentAdminUid = null;
+
+    // ============ الخطوة 1: لازم تسجيل دخول أساساً (وإلا يتحول لـ auth.html) ============
+    requireAuth(async (user) => {
+      // ============ الخطوة 2: هل اليوزر ده أدمن؟ (بنتأكد من وجود مستند admins/{uid}) ============
+      try {
+        const adminSnap = await getDoc(doc(db, 'admins', user.uid));
+        if (!adminSnap.exists()) {
+          showDenied();
+          return;
+        }
+        currentAdminUid = user.uid;
+        checkingState.classList.add('hidden');
+        adminContent.classList.remove('hidden');
+        wireTabs();
+        loadTab('pending');
+        loadCounts();
+      } catch (err) {
+        console.error(err);
+        showDenied();
+      }
+    });
+
+    function showDenied() {
+      checkingState.classList.add('hidden');
+      deniedState.classList.remove('hidden');
+      deniedState.classList.add('flex');
+      setTimeout(() => (window.location.href = 'index.html'), 2500);
+    }
+
+    // ============ تبويبات الحالة (قيد المراجعة / منشورة / مرفوضة) ============
+    function wireTabs() {
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeTab = btn.dataset.tab;
+          loadTab(activeTab);
+        });
+      });
+    }
+
+    // ============ عدّ المنتجات في كل حالة (لعرضها كأرقام صغيرة جنب كل تبويب) ============
+    async function loadCounts() {
+      try {
+        const [pendingSnap, approvedSnap, rejectedSnap] = await Promise.all([
+          getDocs(query(collection(db, 'products'), where('status', '==', 'pending'))),
+          getDocs(query(collection(db, 'products'), where('status', '==', 'approved'))),
+          getDocs(query(collection(db, 'products'), where('status', '==', 'rejected'))),
+        ]);
+        document.getElementById('countPending').textContent = pendingSnap.size;
+        document.getElementById('countApproved').textContent = approvedSnap.size;
+        document.getElementById('countRejected').textContent = rejectedSnap.size;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ============ تحميل منتجات تبويب معيّن ============
+    async function loadTab(status) {
+      productsList.innerHTML = `<p class="text-center text-muted text-sm py-10">جاري تحميل المنتجات...</p>`;
+      emptyTabState.classList.add('hidden');
+
+      try {
+        const q = query(collection(db, 'products'), where('status', '==', status), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          productsList.innerHTML = '';
+          emptyTabState.classList.remove('hidden');
+          emptyTabState.classList.add('flex');
+          return;
+        }
+
+        productsList.innerHTML = snapshot.docs.map((docSnap) => renderProductRow(docSnap.id, docSnap.data())).join('');
+        lucide.createIcons();
+        wireRowActions();
+      } catch (err) {
+        console.error(err);
+        productsList.innerHTML = `<p class="text-center text-rose-400 text-sm py-10">تعذر تحميل المنتجات. لو ظهرلك رابط "create index" في الـ Console، دوسه لإنشاء الفهرس المطلوب أول مرة بس.</p>`;
+      }
+    }
+
+    // ============ رسم صف منتج واحد في اللوحة ============
+    function renderProductRow(id, p) {
+      const img = p.images && p.images[0] ? p.images[0] : null;
+      const createdDate = p.createdAt && p.createdAt.toDate
+        ? p.createdAt.toDate().toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' })
+        : '--';
+
+      let actions = '';
+      if (p.status === 'pending') {
+        actions = `
+          <button data-action="approve" data-id="${id}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 transition-colors flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> نشر</button>
+          <button data-action="reject" data-id="${id}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/15 border border-rose-500/40 text-rose-300 hover:bg-rose-500/25 transition-colors flex items-center gap-1"><i data-lucide="x" class="w-3.5 h-3.5"></i> رفض</button>`;
+      } else if (p.status === 'approved') {
+        actions = `
+          <button data-action="unpublish" data-id="${id}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/15 text-muted hover:text-gold-300 hover:border-gold-500/40 transition-colors flex items-center gap-1"><i data-lucide="undo-2" class="w-3.5 h-3.5"></i> إرجاع للمراجعة</button>`;
+      } else if (p.status === 'rejected') {
+        actions = `
+          <button data-action="approve" data-id="${id}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 transition-colors flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> نشر</button>`;
+      }
+      actions += `<button data-action="delete" data-id="${id}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/15 text-muted hover:text-rose-400 hover:border-rose-500/40 transition-colors flex items-center gap-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> حذف</button>`;
+
+      return `
+        <div class="bg-surface border border-white/[0.07] rounded-xl p-4 flex flex-col sm:flex-row gap-4" data-row="${id}">
+          <div class="w-full sm:w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-surface2 border border-white/[0.07] flex items-center justify-center">
+            ${img ? `<img src="${img}" class="w-full h-full object-cover" alt="${p.name || ''}" />` : `<i data-lucide="image" class="w-6 h-6 text-muted"></i>`}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2 flex-wrap">
+              <div>
+                <a href="product.html?id=${id}" target="_blank" class="font-display font-bold hover:text-gold-400 transition-colors">${p.name || 'بدون اسم'}</a>
+                <p class="text-gold-400 font-num font-semibold text-sm mt-0.5">${Number(p.price || 0).toLocaleString('en-US')} جنيه</p>
+              </div>
+              <span class="text-xs text-muted font-num shrink-0">${createdDate}</span>
+            </div>
+            <p class="text-xs text-muted mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span class="flex items-center gap-1"><i data-lucide="tag" class="w-3 h-3"></i> ${categoryLabels[p.category] || 'غير محدد'}</span>
+              <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${locationLabels[p.location] || 'غير محدد'}</span>
+              <span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${p.ownerName || 'مستخدم دكان'}</span>
+              ${p.phone ? `<span class="flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> ${p.phone}</span>` : ''}
+            </p>
+            <div class="flex items-center gap-2 mt-3 flex-wrap">${actions}</div>
+          </div>
+        </div>`;
+    }
+
+    // ============ ربط أزرار الإجراءات (نشر / رفض / إرجاع للمراجعة / حذف) ============
+    function wireRowActions() {
+      productsList.querySelectorAll('[data-action]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          const row = productsList.querySelector(`[data-row="${id}"]`);
+
+          try {
+            if (action === 'approve') {
+              await updateDoc(doc(db, 'products', id), { status: 'approved' });
+            } else if (action === 'reject') {
+              await updateDoc(doc(db, 'products', id), { status: 'rejected' });
+            } else if (action === 'unpublish') {
+              await updateDoc(doc(db, 'products', id), { status: 'pending' });
+            } else if (action === 'delete') {
+              if (!confirm('متأكد إنك عايز تحذف المنتج ده نهائياً؟ الإجراء ده مش قابل للتراجع.')) return;
+              await deleteDoc(doc(db, 'products', id));
+            }
+            if (row) row.remove();
+            loadCounts();
+            if (productsList.children.length === 0) {
+              emptyTabState.classList.remove('hidden');
+              emptyTabState.classList.add('flex');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('حصل خطأ أثناء تنفيذ الإجراء، حاول تاني.');
+          }
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>

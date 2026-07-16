@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دكان | سوق بيع المنتجات الجديدة والمستعملة</title>
+
+  <!-- ============ Google Fonts: Cairo (عناوين) / Tajawal (نصوص) / Inter (أرقام وعناصر لاتينية) ============ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- ============ Tailwind CSS ============ -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0A0908',
+            surface: '#15130F',
+            surface2: '#1C1A14',
+            bone: '#F5F1E8',
+            muted: '#948E80',
+            gold: {
+              300: '#E8D488',
+              400: '#D9BB55',
+              500: '#C9A227',
+              600: '#A8811C',
+            },
+            violet: {
+              300: '#C4B5FD',
+              400: '#A78BFA',
+              500: '#8B5CF6',
+            },
+          },
+          fontFamily: {
+            display: ['Cairo', 'sans-serif'],
+            body: ['Tajawal', 'sans-serif'],
+            num: ['Inter', 'Tajawal', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ============ Lucide Icons ============ -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ============ نظام التصميم: تدرجات وتأثيرات مساعدة ============ -->
+  <style>
+    body {
+      background-color: #0A0908;
+      background-image:
+        radial-gradient(ellipse 900px 650px at 88% -8%, rgba(201, 162, 39, 0.16), transparent 60%),
+        radial-gradient(ellipse 750px 550px at -8% 108%, rgba(139, 92, 246, 0.14), transparent 60%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
+    .gold-hairline {
+      background: linear-gradient(to left, transparent, rgba(201, 162, 39, 0.5), transparent);
+      height: 1px;
+    }
+
+    .glow-gold:hover {
+      box-shadow: 0 0 28px rgba(201, 162, 39, 0.35);
+    }
+
+    .glow-violet:hover {
+      box-shadow: 0 0 24px rgba(139, 92, 246, 0.3);
+    }
+
+    ::selection {
+      background: rgba(201, 162, 39, 0.35);
+      color: #F5F1E8;
+    }
+
+    /* ============ حركة الدوائر الضبابية في خلفية الهيرو ============ */
+    @keyframes drift-a {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(40px, -30px) scale(1.12); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes drift-b {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(-35px, 25px) scale(1.08); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes drift-c {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(20px, 35px) scale(1.15); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    .orb-a { animation: drift-a 14s ease-in-out infinite; }
+    .orb-b { animation: drift-b 18s ease-in-out infinite; }
+    .orb-c { animation: drift-c 22s ease-in-out infinite; }
+
+    /* احترام تفضيل تقليل الحركة عند المستخدم */
+    @media (prefers-reduced-motion: reduce) {
+      .orb-a, .orb-b, .orb-c { animation: none; }
+    }
+
+    /* ============ حركة ظهور واختفاء رسالة النجاح المنبثقة ============ */
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(-16px) scale(0.96); }
+    }
+    .toast-enter { animation: toast-in 0.35s ease-out forwards; }
+    .toast-leave { animation: toast-out 0.3s ease-in forwards; }
+
+    /* ============ إخفاء شريط التمرير في شريط آراء العملاء الأفقي ============ */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ============ حركة انسدال إجابة الأكورديون بسلاسة (بدون قياس الارتفاع بـ JS) ============ */
+    .faq-answer {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s ease;
+    }
+    .faq-answer-inner {
+      overflow: hidden;
+    }
+    .faq-item.open .faq-answer {
+      grid-template-rows: 1fr;
+    }
+    .faq-item.open .faq-icon {
+      transform: rotate(180deg);
+    }
+    .faq-item.open .faq-question {
+      color: #D9BB55; /* gold-400 */
+    }
+
+    /* ============ حركة انسدال قائمة الهمبرجر على الموبايل (نفس أسلوب الأكورديون) ============ */
+    #mobileMenu {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+    #mobileMenu.open {
+      grid-template-rows: 1fr;
+    }
+    #mobileMenu > div {
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-bone font-body antialiased">
+
+  <!-- =========================================================
+       الهيدر Header
+       ========================================================= -->
+  <header class="w-full sticky top-0 z-50 bg-ink/85 backdrop-blur-md border-b border-white/[0.06]">
+
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
+
+      <a href="#" class="flex items-center gap-2 shrink-0 group">
+        <span class="text-2xl font-display font-extrabold text-bone group-hover:text-gold-400 transition-colors">دكان</span>
+      </a>
+
+      <div class="hidden md:flex flex-1 max-w-xl">
+        <div class="w-full flex items-center bg-surface border border-white/10 rounded-lg px-3 py-2 focus-within:border-gold-500/60 transition-colors">
+          <i data-lucide="search" class="w-5 h-5 shrink-0 text-muted"></i>
+          <input type="text" placeholder="ابحث عن منتج..." class="w-full outline-none px-2 bg-transparent placeholder:text-muted text-bone" />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="add-product.html" class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-400 to-gold-600 glow-gold transition-all hover:-translate-y-0.5">
+          <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          <span>أضف منتجك</span>
+        </a>
+        <button class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 hover:border-gold-500/40 transition-colors" aria-label="المفضلة">
+          <i data-lucide="heart" class="w-5 h-5"></i>
+        </button>
+        <a href="auth.html" data-account-link class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 hover:border-gold-500/40 transition-colors flex items-center justify-center w-9 h-9" aria-label="الحساب">
+          <i data-lucide="user" class="w-5 h-5"></i>
+        </a>
+        <button class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 md:hidden transition-colors" aria-label="فتح القائمة" id="menuToggle" aria-expanded="false" aria-controls="mobileMenu">
+          <i data-lucide="menu" class="w-5 h-5" id="menuIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="md:hidden px-4 pb-3">
+      <div class="w-full flex items-center bg-surface border border-white/10 rounded-lg px-3 py-2">
+        <i data-lucide="search" class="w-5 h-5 shrink-0 text-muted"></i>
+        <input type="text" placeholder="ابحث عن منتج..." class="w-full outline-none px-2 bg-transparent placeholder:text-muted text-bone" />
+      </div>
+    </div>
+
+    <!-- شريط التنقل الأفقي بين الأقسام: يظهر من md فأكبر فقط، لتفادي أي تمرير عرضي على الموبايل -->
+    <nav class="hidden md:block border-t border-white/[0.06]">
+      <ul class="max-w-7xl mx-auto px-4 flex items-center gap-6 overflow-x-auto whitespace-nowrap py-2 text-sm">
+        <li><a href="search.html" class="text-muted hover:text-gold-400 transition-colors">جميع الأقسام</a></li>
+        <li><a href="search.html?category=electronics" class="text-muted hover:text-gold-400 transition-colors">إلكترونيات</a></li>
+        <li><a href="search.html?category=furniture" class="text-muted hover:text-gold-400 transition-colors">أثاث ومنزل</a></li>
+        <li><a href="search.html?category=mobiles" class="text-muted hover:text-gold-400 transition-colors">موبايلات</a></li>
+        <li><a href="search.html?category=cars" class="text-muted hover:text-gold-400 transition-colors">سيارات</a></li>
+        <li><a href="search.html?category=fashion" class="text-muted hover:text-gold-400 transition-colors">أزياء</a></li>
+        <li><a href="search.html?category=other" class="text-muted hover:text-gold-400 transition-colors">المزيد</a></li>
+      </ul>
+    </nav>
+
+    <!-- ============ قائمة الهمبرجر المنسدلة (موبايل فقط) ============ -->
+    <div id="mobileMenu" class="md:hidden border-t border-white/[0.06]">
+      <div>
+        <ul class="max-w-7xl mx-auto px-4 pt-2 pb-1 flex flex-col text-sm">
+          <li><a href="search.html" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">جميع الأقسام</a></li>
+          <li><a href="search.html?category=electronics" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">إلكترونيات</a></li>
+          <li><a href="search.html?category=furniture" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">أثاث ومنزل</a></li>
+          <li><a href="search.html?category=mobiles" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">موبايلات</a></li>
+          <li><a href="search.html?category=cars" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">سيارات</a></li>
+          <li><a href="search.html?category=fashion" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">أزياء</a></li>
+        </ul>
+        <div class="max-w-7xl mx-auto px-4 pb-4 pt-2">
+          <a href="add-product.html" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-400 to-gold-600 glow-gold transition-all">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            <span>أضف منتجك</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1">
+
+    <!-- ============ قسم الهيرو (Hero Section) ============ -->
+    <section class="relative overflow-hidden">
+
+      <!-- الدوائر المتدرجة الضبابية المتحركة (خلف المحتوى) -->
+      <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div class="orb-a absolute top-[-10%] right-[8%] w-[420px] h-[420px] rounded-full bg-gold-500/25 blur-[110px]"></div>
+        <div class="orb-b absolute bottom-[-15%] left-[5%] w-[380px] h-[380px] rounded-full bg-violet-500/25 blur-[110px]"></div>
+        <div class="orb-c absolute top-[20%] left-[35%] w-[280px] h-[280px] rounded-full bg-gold-400/10 blur-[90px]"></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 py-14 sm:py-20 md:py-28 flex flex-col items-center text-center">
+
+        <!-- شارة صغيرة أعلى العنوان -->
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-300 text-xs font-medium mb-6">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          أكبر سوق للمنتجات الجديدة والمستعملة
+        </span>
+
+        <!-- العنوان الرئيسي -->
+        <h1 class="font-display font-black leading-[1.15] text-4xl sm:text-5xl md:text-6xl max-w-3xl">
+          بيع اللي مش بتستخدمه
+          <br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-l from-gold-300 via-gold-400 to-gold-600">
+            ولاقي اللي محتاجه
+          </span>
+        </h1>
+
+        <!-- النص الفرعي -->
+        <p class="mt-6 text-muted text-base md:text-lg max-w-xl leading-relaxed">
+          من موبايل مستعمل لسيارة شبه جديدة، تصفح آلاف المنتجات القريبة منك،
+          وابدأ البيع في أقل من دقيقتين.
+        </p>
+
+        <!-- الأزرار -->
+        <div class="mt-9 flex flex-col sm:flex-row items-center gap-4">
+
+          <!-- الزر الرئيسي: تدرج ذهبي + توهج عند التمرير -->
+          <button class="group relative px-7 py-3.5 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-300 to-gold-600 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(201,162,39,0.45)]">
+            <span class="flex items-center gap-2">
+              تصفح المنتجات
+              <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
+            </span>
+          </button>
+
+          <!-- الزر الثانوي: حدود شفافة Outline -->
+          <button class="px-7 py-3.5 rounded-lg font-display font-bold text-bone border border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-gold-400/60 hover:text-gold-300">
+            اكتشف المزيد
+          </button>
+        </div>
+
+        <!-- سطر ثقة صغير أسفل الأزرار -->
+        <div class="mt-10 flex items-center gap-6 text-xs text-muted font-num">
+          <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-gold-400"></i> عمليات موثقة</span>
+          <span class="flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4 text-gold-400"></i> +50 ألف مستخدم</span>
+          <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4 text-gold-400"></i> تغطية كل المحافظات</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ قسم المميزات الرئيسية (Features) ============ -->
+    <section class="max-w-7xl mx-auto px-4 py-10 sm:py-12 md:py-14">
+
+      <div class="text-center max-w-xl mx-auto mb-10">
+        <h2 class="text-2xl md:text-3xl font-display font-extrabold">ليه تتعامل مع دكان؟</h2>
+        <p class="text-muted mt-2">تجربة بيع وشراء مصممة عشان تكون سريعة، آمنة، وقريبة منك</p>
+      </div>
+
+      <!-- شبكة المميزات: عمود واحد على الموبايل، عمودان على التابلت، 4 أعمدة على الشاشات الكبيرة -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <!-- بطاقة ميزة 1: الأمان -->
+        <div class="group bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:border-gold-500/50 hover:shadow-[0_0_35px_rgba(201,162,39,0.15)]">
+          <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-5 transition-colors group-hover:bg-gold-500/15">
+            <i data-lucide="shield-check" class="w-6 h-6 text-gold-400"></i>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">حماية وأمان</h3>
+          <p class="text-sm text-muted leading-relaxed">كل عملية بيع وشراء بتمر بخطوات تحقق واضحة، عشان تطمن وانت بتتعامل مع أي حد على المنصة.</p>
+        </div>
+
+        <!-- بطاقة ميزة 2: سرعة النشر -->
+        <div class="group bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:border-gold-500/50 hover:shadow-[0_0_35px_rgba(201,162,39,0.15)]">
+          <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-5 transition-colors group-hover:bg-gold-500/15">
+            <i data-lucide="zap" class="w-6 h-6 text-gold-400"></i>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">انشر في دقيقتين</h3>
+          <p class="text-sm text-muted leading-relaxed">استمارة بسيطة، صور واضحة، وسعر مناسب، ومنتجك يظهر قدام آلاف المشترين على طول.</p>
+        </div>
+
+        <!-- بطاقة ميزة 3: القرب الجغرافي -->
+        <div class="group bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:border-gold-500/50 hover:shadow-[0_0_35px_rgba(201,162,39,0.15)]">
+          <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-5 transition-colors group-hover:bg-gold-500/15">
+            <i data-lucide="map-pin" class="w-6 h-6 text-gold-400"></i>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">قريب من مكانك</h3>
+          <p class="text-sm text-muted leading-relaxed">فلترة ذكية حسب المحافظة والمنطقة، عشان تلاقي أو تبيع من غير ما تتعب في التوصيل.</p>
+        </div>
+
+        <!-- بطاقة ميزة 4: الثقة المجتمعية -->
+        <div class="group bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:border-gold-500/50 hover:shadow-[0_0_35px_rgba(201,162,39,0.15)]">
+          <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mb-5 transition-colors group-hover:bg-gold-500/15">
+            <i data-lucide="star" class="w-6 h-6 text-gold-400"></i>
+          </div>
+          <h3 class="font-display font-bold text-lg mb-2">تقييمات حقيقية</h3>
+          <p class="text-sm text-muted leading-relaxed">قيّم البائع بعد كل عملية، وابني ثقتك في المجتمع خطوة بخطوة مع كل تعامل.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ قسم الأقسام (Categories) ============ -->
+    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-10">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-display font-bold">تصفح حسب القسم</h2>
+        <a href="search.html" class="text-sm text-gold-400 hover:text-gold-300 transition-colors">عرض الكل</a>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        <a href="search.html?category=mobiles" class="bg-surface border border-white/[0.07] rounded-lg p-4 flex flex-col items-center gap-2 text-center transition-all hover:border-gold-500/40 hover:-translate-y-1">
+          <i data-lucide="smartphone" class="w-6 h-6 text-gold-400"></i>
+          <span class="text-sm">موبايلات</span>
+        </a>
+        <a href="search.html?category=furniture" class="bg-surface border border-white/[0.07] rounded-lg p-4 flex flex-col items-center gap-2 text-center transition-all hover:border-gold-500/40 hover:-translate-y-1">
+          <i data-lucide="sofa" class="w-6 h-6 text-gold-400"></i>
+          <span class="text-sm">أثاث</span>
+        </a>
+        <a href="search.html?category=cars" class="bg-surface border border-white/[0.07] rounded-lg p-4 flex flex-col items-center gap-2 text-center transition-all hover:border-gold-500/40 hover:-translate-y-1">
+          <i data-lucide="car" class="w-6 h-6 text-gold-400"></i>
+          <span class="text-sm">سيارات</span>
+        </a>
+        <a href="search.html?category=fashion" class="bg-surface border border-white/[0.07] rounded-lg p-4 flex flex-col items-center gap-2 text-center transition-all hover:border-gold-500/40 hover:-translate-y-1">
+          <i data-lucide="shirt" class="w-6 h-6 text-gold-400"></i>
+          <span class="text-sm">أزياء</span>
+        </a>
+        <a href="search.html?category=electronics" class="bg-surface border border-white/[0.07] rounded-lg p-4 flex flex-col items-center gap-2 text-center transition-all hover:border-gold-500/40 hover:-translate-y-1">
+          <i data-lucide="laptop" class="w-6 h-6 text-gold-400"></i>
+          <span class="text-sm">إلكترونيات</span>
+        </a>
+        <a href="search.html?category=other" class="bg-surface border border-white/[0.07] rounded-lg p-4 flex flex-col items-center gap-2 text-center transition-all hover:border-gold-500/40 hover:-translate-y-1">
+          <i data-lucide="grid" class="w-6 h-6 text-gold-400"></i>
+          <span class="text-sm">أخرى</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ قسم أحدث المنتجات (Products Grid) ============ -->
+    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-10">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <h2 class="text-xl font-display font-bold">أحدث المنتجات</h2>
+        <div class="flex items-center gap-2 text-sm">
+          <button class="px-3 py-1.5 rounded-full border border-gold-500/50 text-gold-400 bg-gold-500/10">الكل</button>
+          <button class="px-3 py-1.5 rounded-full border border-white/10 text-muted hover:border-gold-500/40 hover:text-gold-400 transition-colors">جديد</button>
+          <button class="px-3 py-1.5 rounded-full border border-white/10 text-muted hover:border-violet-500/40 hover:text-violet-300 transition-colors">مستعمل</button>
+        </div>
+      </div>
+
+      <div id="latestProductsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <p class="col-span-full text-center text-muted text-sm py-10">جاري تحميل أحدث المنتجات...</p>
+      </div>
+
+      <div class="flex justify-center mt-8">
+        <button class="px-6 py-2.5 rounded-lg border border-white/15 text-bone hover:border-gold-500/40 hover:text-gold-400 transition-colors font-medium">عرض المزيد</button>
+      </div>
+    </section>
+
+    <!-- ============ قسم دعوة "بيع منتجك" (CTA) ============ -->
+    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-10">
+      <div class="relative overflow-hidden bg-surface/60 border border-gold-500/20 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-right">
+        <div>
+          <h2 class="text-xl md:text-2xl font-display font-bold mb-2">عندك منتج جديد أو مستعمل؟</h2>
+          <p class="text-muted">أضِفه الآن ووصله لآلاف المشترين في دقائق</p>
+        </div>
+        <a href="add-product.html" class="px-6 py-3 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-400 to-gold-600 glow-gold transition-all hover:-translate-y-0.5 shrink-0">أضف منتجك الآن</a>
+      </div>
+    </section>
+
+    <!-- ============ قسم آراء العملاء (Testimonials) ============ -->
+    <section class="py-10 sm:py-12 md:py-14">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center max-w-xl mx-auto mb-10">
+          <h2 class="text-2xl md:text-3xl font-display font-extrabold">إيه رأي اللي جربوا دكان؟</h2>
+          <p class="text-muted mt-2">آلاف عمليات البيع والشراء تمت بثقة، ودي جزء من تجاربهم</p>
+        </div>
+      </div>
+
+      <!-- شريط بطاقات أفقي انسيابي (تمرير + Snap) -->
+      <div class="no-scrollbar flex gap-5 overflow-x-auto snap-x snap-mandatory px-4 max-w-7xl mx-auto pb-2">
+
+        <!-- بطاقة رأي 1 -->
+        <div class="snap-start shrink-0 w-[85%] sm:w-[46%] lg:w-[31%] bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold-500/40">
+          <div class="flex items-center gap-1 mb-4">
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+          </div>
+          <p class="text-sm text-bone/90 leading-relaxed mb-6">"بعت موبايلي القديم في نفس اليوم اللي نزلته فيه. الاستمارة سهلة والتواصل مع المشتري كان واضح من غير أي لخبطة."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center font-display font-bold text-ink shrink-0">أم</div>
+            <div>
+              <p class="font-medium text-sm">أحمد مصطفى</p>
+              <p class="text-xs text-muted">بائع نشط، القاهرة</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- بطاقة رأي 2 -->
+        <div class="snap-start shrink-0 w-[85%] sm:w-[46%] lg:w-[31%] bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold-500/40">
+          <div class="flex items-center gap-1 mb-4">
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+          </div>
+          <p class="text-sm text-bone/90 leading-relaxed mb-6">"دايماً بدور على أثاث مستعمل بحالة كويسة قبل ما أشتري جديد. فلترة المنطقة وفّرت عليا وقت التوصيل والمعاينة."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center font-display font-bold text-ink shrink-0">سع</div>
+            <div>
+              <p class="font-medium text-sm">سارة عادل</p>
+              <p class="text-xs text-muted">مشترية دائمة، الإسكندرية</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- بطاقة رأي 3 -->
+        <div class="snap-start shrink-0 w-[85%] sm:w-[46%] lg:w-[31%] bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold-500/40">
+          <div class="flex items-center gap-1 mb-4">
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-muted"></i>
+          </div>
+          <p class="text-sm text-bone/90 leading-relaxed mb-6">"التقييمات ساعدتني أختار مين أتعامل معاه بثقة. تجربة بسيطة ومرتبة عن غيرها من المواقع اللي جربتها قبل كده."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-gold-400 to-violet-500 flex items-center justify-center font-display font-bold text-ink shrink-0">كم</div>
+            <div>
+              <p class="font-medium text-sm">كريم منصور</p>
+              <p class="text-xs text-muted">بائع سيارات، الجيزة</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- بطاقة رأي 4 -->
+        <div class="snap-start shrink-0 w-[85%] sm:w-[46%] lg:w-[31%] bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold-500/40">
+          <div class="flex items-center gap-1 mb-4">
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+            <i data-lucide="star" class="w-4 h-4 text-gold-400 fill-current"></i>
+          </div>
+          <p class="text-sm text-bone/90 leading-relaxed mb-6">"نشرت أول منتج ليا في أقل من دقيقتين زي ما بالظبط موعود. حسيت إن الموقع مصمم فعلاً للناس البسيطة زينا."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-violet-400 to-gold-500 flex items-center justify-center font-display font-bold text-ink shrink-0">هم</div>
+            <div>
+              <p class="font-medium text-sm">هبة الشريف</p>
+              <p class="text-xs text-muted">بائعة أزياء، المنصورة</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ قسم الأسئلة الشائعة (FAQ - Accordion) ============ -->
+    <section class="max-w-4xl mx-auto px-4 py-10 sm:py-12 md:py-14">
+      <div class="text-center max-w-xl mx-auto mb-10">
+        <h2 class="text-2xl md:text-3xl font-display font-extrabold">أسئلة بتتسأل كتير</h2>
+        <p class="text-muted mt-2">مش لاقي إجابتك هنا؟ استخدم نموذج التواصل تحت وهنرد عليك</p>
+      </div>
+
+      <div class="space-y-3">
+
+        <!-- عنصر سؤال 1 -->
+        <div class="faq-item bg-surface border border-white/[0.07] rounded-xl overflow-hidden">
+          <button type="button" class="faq-question w-full flex items-center justify-between gap-4 px-5 py-4 text-right" aria-expanded="false">
+            <span class="font-display font-bold text-sm md:text-base">إزاي أقدر أبيع منتج على دكان؟</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gold-400 shrink-0 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner px-5 pb-4 text-sm text-muted leading-relaxed">
+              دوس على زرار "أضف منتجك"، اكتب اسم المنتج وحالته (جديد أو مستعمل)، ارفع صور واضحة، وحدد السعر والمنطقة. المنتج بيظهر للمشترين على طول بعد النشر.
+            </div>
+          </div>
+        </div>
+
+        <!-- عنصر سؤال 2 -->
+        <div class="faq-item bg-surface border border-white/[0.07] rounded-xl overflow-hidden">
+          <button type="button" class="faq-question w-full flex items-center justify-between gap-4 px-5 py-4 text-right" aria-expanded="false">
+            <span class="font-display font-bold text-sm md:text-base">هل في عمولة على عمليات البيع؟</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gold-400 shrink-0 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner px-5 pb-4 text-sm text-muted leading-relaxed">
+              نشر المنتجات على دكان مجاني بالكامل. أي رسوم إضافية اختيارية (زي تمييز إعلانك) بتكون موضحة بشكل واضح قبل ما توافق عليها.
+            </div>
+          </div>
+        </div>
+
+        <!-- عنصر سؤال 3 -->
+        <div class="faq-item bg-surface border border-white/[0.07] rounded-xl overflow-hidden">
+          <button type="button" class="faq-question w-full flex items-center justify-between gap-4 px-5 py-4 text-right" aria-expanded="false">
+            <span class="font-display font-bold text-sm md:text-base">إزاي أتأكد إن المنتج المستعمل شغال كويس؟</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gold-400 shrink-0 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner px-5 pb-4 text-sm text-muted leading-relaxed">
+              ننصح دايماً بمعاينة المنتج شخصياً قبل الدفع، ومراجعة تقييمات البائع السابقة. كل بائع عنده سجل تقييمات ظاهر على صفحته الشخصية.
+            </div>
+          </div>
+        </div>
+
+        <!-- عنصر سؤال 4 -->
+        <div class="faq-item bg-surface border border-white/[0.07] rounded-xl overflow-hidden">
+          <button type="button" class="faq-question w-full flex items-center justify-between gap-4 px-5 py-4 text-right" aria-expanded="false">
+            <span class="font-display font-bold text-sm md:text-base">إزاي أتواصل مع البائع أو المشتري؟</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gold-400 shrink-0 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner px-5 pb-4 text-sm text-muted leading-relaxed">
+              كل منتج فيه زرار تواصل مباشر بيوصلك بصاحب الإعلان داخل المنصة، من غير ما تحتاج تشارك رقمك إلا لو حبيت.
+            </div>
+          </div>
+        </div>
+
+        <!-- عنصر سؤال 5 -->
+        <div class="faq-item bg-surface border border-white/[0.07] rounded-xl overflow-hidden">
+          <button type="button" class="faq-question w-full flex items-center justify-between gap-4 px-5 py-4 text-right" aria-expanded="false">
+            <span class="font-display font-bold text-sm md:text-base">هل دكان متاح في كل المحافظات؟</span>
+            <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-gold-400 shrink-0 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner px-5 pb-4 text-sm text-muted leading-relaxed">
+              أيوه، دكان متاح في كل المحافظات، وممكن تفلتر المنتجات حسب المحافظة والمنطقة عشان تلاقي أقرب عرض لمكانك.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ قسم التواصل / نموذج جذب العملاء (Lead Capture Form) ============ -->
+    <section class="max-w-7xl mx-auto px-4 py-10 sm:py-12 md:py-14">
+      <div class="relative overflow-hidden bg-surface/60 border border-white/[0.07] rounded-2xl p-6 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+
+        <!-- توهج زخرفي خفيف داخل بطاقة النموذج -->
+        <div class="pointer-events-none absolute -top-24 -left-24 w-64 h-64 rounded-full bg-violet-500/10 blur-[90px]"></div>
+
+        <!-- نص تعريفي بجانب النموذج -->
+        <div class="relative text-center md:text-right">
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-300 text-xs font-medium mb-4">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+            تواصل معنا
+          </span>
+          <h2 class="text-2xl md:text-3xl font-display font-extrabold mb-3">عندك استفسار؟ إحنا هنا</h2>
+          <p class="text-muted leading-relaxed max-w-md mx-auto md:mx-0">
+            سواء سؤال عن عملية بيع، مشكلة في الحساب، أو مجرد اقتراح لتحسين دكان،
+            ابعتلنا رسالتك وفريقنا هيرد عليك في أقرب وقت.
+          </p>
+
+          <div class="flex items-center justify-center md:justify-start gap-6 mt-6 text-sm text-muted">
+            <span class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-gold-400"></i> support@dokan.com</span>
+          </div>
+        </div>
+
+        <!-- نموذج التواصل -->
+        <form id="leadForm" class="relative space-y-4" novalidate>
+
+          <!-- حقل الاسم -->
+          <div>
+            <label for="leadName" class="block text-sm text-muted mb-1.5">الاسم</label>
+            <input
+              id="leadName"
+              name="name"
+              type="text"
+              required
+              placeholder="اكتب اسمك بالكامل"
+              class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)]"
+            />
+          </div>
+
+          <!-- حقل البريد الإلكتروني -->
+          <div>
+            <label for="leadEmail" class="block text-sm text-muted mb-1.5">البريد الإلكتروني</label>
+            <input
+              id="leadEmail"
+              name="email"
+              type="email"
+              required
+              placeholder="example@email.com"
+              class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)] font-num"
+              dir="ltr"
+            />
+          </div>
+
+          <!-- حقل الرسالة -->
+          <div>
+            <label for="leadMessage" class="block text-sm text-muted mb-1.5">رسالتك</label>
+            <textarea
+              id="leadMessage"
+              name="message"
+              rows="4"
+              required
+              placeholder="اكتب استفسارك أو رسالتك هنا..."
+              class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 resize-none focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30 focus:shadow-[0_0_20px_rgba(139,92,246,0.25)]"
+            ></textarea>
+          </div>
+
+          <!-- زر الإرسال -->
+          <button
+            type="submit"
+            class="w-full sm:w-auto px-7 py-3.5 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-300 to-gold-600 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(201,162,39,0.4)] flex items-center justify-center gap-2"
+          >
+            <i data-lucide="send" class="w-4 h-4"></i>
+            إرسال الرسالة
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ حاوية رسالة النجاح المنبثقة (Toast) ============ -->
+  <div id="toastContainer" class="fixed top-5 inset-x-0 z-[100] flex justify-center px-4 pointer-events-none">
+    <!-- سيتم حقن رسالة النجاح هنا ديناميكياً عبر JavaScript -->
+  </div>
+
+  <!-- =========================================================
+       الفوتر Footer
+       يحتوي على: روابط عن الموقع / الأقسام / الدعم / التواصل الاجتماعي / حقوق النشر
+       ========================================================= -->
+  <footer class="border-t border-white/[0.06] mt-auto bg-ink">
+    <div class="gold-hairline max-w-7xl mx-auto"></div>
+
+    <div class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="space-y-3">
+        <span class="text-lg font-display font-extrabold text-bone">دكان</span>
+        <p class="text-sm text-muted">سوقك الموثوق لبيع وشراء المنتجات الجديدة والمستعملة.</p>
+      </div>
+      <div class="space-y-3">
+        <h3 class="font-display font-semibold text-sm text-bone">الأقسام</h3>
+        <ul class="space-y-2 text-sm text-muted">
+          <li><a href="#" class="hover:text-gold-400 transition-colors">إلكترونيات</a></li>
+          <li><a href="#" class="hover:text-gold-400 transition-colors">أثاث ومنزل</a></li>
+          <li><a href="#" class="hover:text-gold-400 transition-colors">سيارات</a></li>
+          <li><a href="#" class="hover:text-gold-400 transition-colors">أزياء</a></li>
+        </ul>
+      </div>
+      <div class="space-y-3">
+        <h3 class="font-display font-semibold text-sm text-bone">الدعم</h3>
+        <ul class="space-y-2 text-sm text-muted">
+          <li><a href="#" class="hover:text-gold-400 transition-colors">مركز المساعدة</a></li>
+          <li><a href="#" class="hover:text-gold-400 transition-colors">الأسئلة الشائعة</a></li>
+          <li><a href="#" class="hover:text-gold-400 transition-colors">تواصل معنا</a></li>
+          <li><a href="#" class="hover:text-gold-400 transition-colors">سياسة الخصوصية</a></li>
+        </ul>
+      </div>
+      <div class="space-y-3">
+        <h3 class="font-display font-semibold text-sm text-bone">تابعنا</h3>
+        <div class="flex items-center gap-3">
+          <a href="#" class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 hover:border-gold-500/40 transition-colors" aria-label="فيسبوك">
+            <i data-lucide="facebook" class="w-4 h-4"></i>
+          </a>
+          <a href="#" class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 hover:border-gold-500/40 transition-colors" aria-label="انستغرام">
+            <i data-lucide="instagram" class="w-4 h-4"></i>
+          </a>
+          <a href="#" class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 hover:border-gold-500/40 transition-colors" aria-label="تويتر / إكس">
+            <i data-lucide="twitter" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-white/[0.06]">
+      <div class="max-w-7xl mx-auto px-4 py-4 text-center text-xs text-muted font-num">
+        © 2026 دكان. جميع الحقوق محفوظة.
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { db, collection, getDocs, query, where, orderBy, limit } from './firebase-config.js';
+    import { wireAuthHeader } from './auth-header.js';
+
+    lucide.createIcons();
+    wireAuthHeader();
+
+    const locationLabels = {
+      cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', dakahlia: 'الدقهلية',
+      red_sea: 'البحر الأحمر', beheira: 'البحيرة', fayoum: 'الفيوم', gharbia: 'الغربية',
+      ismailia: 'الإسماعيلية', monufia: 'المنوفية', minya: 'المنيا', qalyubia: 'القليوبية',
+      new_valley: 'الوادي الجديد', suez: 'السويس', aswan: 'أسوان', assiut: 'أسيوط',
+      beni_suef: 'بني سويف', port_said: 'بورسعيد', damietta: 'دمياط', sharqia: 'الشرقية',
+      south_sinai: 'جنوب سيناء', kafr_el_sheikh: 'كفر الشيخ', matrouh: 'مطروح', luxor: 'الأقصر',
+      qena: 'قنا', north_sinai: 'شمال سيناء', sohag: 'سوهاج',
+      mansoura: 'المنصورة', // توافق مع منتجات قديمة اتنشرت قبل تحديث قائمة المحافظات
+      other: 'محافظة أخرى',
+    };
+
+    // ============ جلب أحدث 8 منتجات "منشورة" (وافق عليها الأدمن) من Firestore ============
+    async function loadLatestProducts() {
+      const grid = document.getElementById('latestProductsGrid');
+      try {
+        const q = query(collection(db, 'products'), where('status', '==', 'approved'), orderBy('createdAt', 'desc'), limit(8));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          grid.innerHTML = `<p class="col-span-full text-center text-muted text-sm py-10">لسه مفيش منتجات منشورة، كن أول من يضيف منتج!</p>`;
+          return;
+        }
+
+        grid.innerHTML = snapshot.docs.map((docSnap) => {
+          const p = docSnap.data();
+          const isNew = p.condition === 'new';
+          const badgeColor = isNew ? 'gold' : 'violet';
+          return `
+            <a href="product.html?id=${docSnap.id}" class="bg-surface border border-white/[0.07] rounded-lg overflow-hidden flex flex-col transition-all hover:border-${badgeColor}-500/30 hover:-translate-y-1">
+              <div class="aspect-square flex items-center justify-center border-b border-white/[0.07] bg-surface2 overflow-hidden">
+                ${
+                  p.images && p.images[0]
+                    ? `<img src="${p.images[0]}" alt="${p.name}" class="w-full h-full object-cover" loading="lazy" />`
+                    : `<i data-lucide="image" class="w-8 h-8 text-muted"></i>`
+                }
+              </div>
+              <div class="p-3 flex flex-col gap-1.5">
+                <span class="text-xs w-fit px-2 py-0.5 rounded-full border border-${badgeColor}-500/40 text-${badgeColor}-${badgeColor === 'gold' ? '400' : '300'} bg-${badgeColor}-500/10">
+                  ${isNew ? 'جديد' : 'مستعمل'}
+                </span>
+                <h3 class="font-medium text-sm">${p.name}</h3>
+                <p class="text-sm text-gold-400 font-num font-semibold">${Number(p.price).toLocaleString('en-US')} جنيه</p>
+              </div>
+            </a>
+          `;
+        }).join('');
+        lucide.createIcons();
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<p class="col-span-full text-center text-rose-400 text-sm py-10">تعذر تحميل المنتجات، حاول تحدّث الصفحة.</p>`;
+      }
+    }
+
+    loadLatestProducts();
+
+    // ============ معالجة إرسال نموذج التواصل وعرض رسالة النجاح ============
+    const leadForm = document.getElementById('leadForm');
+    const toastContainer = document.getElementById('toastContainer');
+
+    function showSuccessToast(name) {
+      // إزالة أي رسالة سابقة قبل عرض واحدة جديدة
+      toastContainer.innerHTML = '';
+
+      const toast = document.createElement('div');
+      toast.className =
+        'toast-enter pointer-events-auto flex items-center gap-3 bg-surface border border-gold-500/40 text-bone rounded-xl px-5 py-4 shadow-[0_0_30px_rgba(201,162,39,0.25)] max-w-sm w-full';
+
+      toast.innerHTML = `
+        <span class="shrink-0 w-9 h-9 rounded-full bg-gold-500/15 border border-gold-500/40 flex items-center justify-center">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-gold-400"></i>
+        </span>
+        <div class="text-sm">
+          <p class="font-display font-bold text-bone">تم إرسال رسالتك بنجاح 🎉</p>
+          <p class="text-muted mt-0.5">شكراً${name ? ' يا ' + name : ''}، فريق دكان هيتواصل معاك قريب.</p>
+        </div>
+      `;
+
+      toastContainer.appendChild(toast);
+      lucide.createIcons();
+
+      // إخفاء الرسالة تلقائياً بعد 4 ثوانٍ
+      setTimeout(() => {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-leave');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    if (leadForm) {
+      leadForm.addEventListener('submit', function (event) {
+        event.preventDefault(); // منع تحديث الصفحة
+
+        // التحقق البسيط من الحقول المطلوبة عبر HTML5 قبل المتابعة
+        if (!leadForm.checkValidity()) {
+          leadForm.reportValidity();
+          return;
+        }
+
+        const nameValue = leadForm.querySelector('#leadName').value.trim();
+
+        // هنا مكان استدعاء API فعلي لإرسال البيانات لاحقاً
+        showSuccessToast(nameValue);
+
+        leadForm.reset();
+      });
+    }
+
+    // ============ قائمة الهمبرجر التفاعلية (موبايل) ============
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+
+    function setMenuState(open) {
+      mobileMenu.classList.toggle('open', open);
+      menuToggle.setAttribute('aria-expanded', String(open));
+      menuIcon.setAttribute('data-lucide', open ? 'x' : 'menu');
+      lucide.createIcons();
+    }
+
+    if (menuToggle && mobileMenu) {
+      menuToggle.addEventListener('click', () => {
+        setMenuState(!mobileMenu.classList.contains('open'));
+      });
+
+      // إغلاق القائمة تلقائياً عند الضغط على أي رابط أو زر بداخلها
+      mobileMenu.querySelectorAll('a, button').forEach((el) => {
+        el.addEventListener('click', () => setMenuState(false));
+      });
+
+      // إغلاق القائمة تلقائياً لو الشاشة كبرت لحجم الديسكتوب (تفادي بقائها مفتوحة خلف عنصر مخفي)
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
+          setMenuState(false);
+        }
+      });
+    }
+
+    // ============ الأكورديون التفاعلي لقسم الأسئلة الشائعة ============
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    faqItems.forEach((item) => {
+      const question = item.querySelector('.faq-question');
+
+      question.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+
+        // إغلاق أي سؤال آخر مفتوح (سلوك أكورديون: سؤال واحد مفتوح في كل مرة)
+        faqItems.forEach((otherItem) => {
+          if (otherItem !== item) {
+            otherItem.classList.remove('open');
+            otherItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        // فتح/إغلاق السؤال الحالي
+        item.classList.toggle('open', !isOpen);
+        question.setAttribute('aria-expanded', String(!isOpen));
+      });
+    });
+  </script>
+
+</body>
+</html>

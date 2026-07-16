@@ -68,6 +68,13 @@
       color: #F5F1E8;
     }
 
+    /* ============ إصلاح شكل القوائم المنسدلة (select) في المتصفح ============ */
+    select { color-scheme: dark; }
+    select option {
+      background-color: #1C1A14;
+      color: #F5F1E8;
+    }
+
     /* ============ حركة انسدال قائمة الهمبرجر على الموبايل (نفس أسلوب باقي الموقع) ============ */
     #mobileMenu {
       display: grid;
@@ -309,7 +316,31 @@
           <option value="cairo">القاهرة</option>
           <option value="giza">الجيزة</option>
           <option value="alex">الإسكندرية</option>
-          <option value="mansoura">المنصورة</option>
+          <option value="dakahlia">الدقهلية</option>
+          <option value="red_sea">البحر الأحمر</option>
+          <option value="beheira">البحيرة</option>
+          <option value="fayoum">الفيوم</option>
+          <option value="gharbia">الغربية</option>
+          <option value="ismailia">الإسماعيلية</option>
+          <option value="monufia">المنوفية</option>
+          <option value="minya">المنيا</option>
+          <option value="qalyubia">القليوبية</option>
+          <option value="new_valley">الوادي الجديد</option>
+          <option value="suez">السويس</option>
+          <option value="aswan">أسوان</option>
+          <option value="assiut">أسيوط</option>
+          <option value="beni_suef">بني سويف</option>
+          <option value="port_said">بورسعيد</option>
+          <option value="damietta">دمياط</option>
+          <option value="sharqia">الشرقية</option>
+          <option value="south_sinai">جنوب سيناء</option>
+          <option value="kafr_el_sheikh">كفر الشيخ</option>
+          <option value="matrouh">مطروح</option>
+          <option value="luxor">الأقصر</option>
+          <option value="qena">قنا</option>
+          <option value="north_sinai">شمال سيناء</option>
+          <option value="sohag">سوهاج</option>
+          <option value="other">محافظة أخرى</option>
         </select>
       </div>
 
@@ -334,7 +365,7 @@
   </footer>
 
   <script type="module">
-    import { db, collection, getDocs, query, orderBy } from './firebase-config.js';
+    import { db, collection, getDocs, query, where, orderBy } from './firebase-config.js';
     import { wireAuthHeader } from './auth-header.js';
 
     lucide.createIcons();
@@ -349,13 +380,24 @@
     const categoryLabels = {
       mobiles: 'موبايلات', electronics: 'إلكترونيات', furniture: 'أثاث ومنزل', cars: 'سيارات', fashion: 'أزياء', other: 'أخرى',
     };
-    const locationLabels = { cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', mansoura: 'المنصورة', other: 'محافظة أخرى' };
+    const locationLabels = {
+      cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', dakahlia: 'الدقهلية',
+      red_sea: 'البحر الأحمر', beheira: 'البحيرة', fayoum: 'الفيوم', gharbia: 'الغربية',
+      ismailia: 'الإسماعيلية', monufia: 'المنوفية', minya: 'المنيا', qalyubia: 'القليوبية',
+      new_valley: 'الوادي الجديد', suez: 'السويس', aswan: 'أسوان', assiut: 'أسيوط',
+      beni_suef: 'بني سويف', port_said: 'بورسعيد', damietta: 'دمياط', sharqia: 'الشرقية',
+      south_sinai: 'جنوب سيناء', kafr_el_sheikh: 'كفر الشيخ', matrouh: 'مطروح', luxor: 'الأقصر',
+      qena: 'قنا', north_sinai: 'شمال سيناء', sohag: 'سوهاج',
+      mansoura: 'المنصورة', // توافق مع منتجات قديمة اتنشرت قبل تحديث قائمة المحافظات
+      other: 'محافظة أخرى',
+    };
     const conditionBadge = { new: 'gold', used: 'violet' };
 
     async function loadProducts() {
       productGrid.innerHTML = `<p class="col-span-full text-center text-muted text-sm py-10">جاري تحميل المنتجات...</p>`;
       try {
-        const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+        // بنعرض المنتجات "المنشورة" (status == approved) بس، اللي وافق عليها الأدمن من لوحة التحكم
+        const q = query(collection(db, 'products'), where('status', '==', 'approved'), orderBy('createdAt', 'desc'));
         const snapshot = await getDocs(q);
         products = snapshot.docs.map((docSnap) => {
           const data = docSnap.data();
@@ -591,6 +633,18 @@
     sortSelect.addEventListener('change', applyFilters);
 
     // ============ التشغيل الأولي عند فتح الصفحة ============
+    // لو جاي من رابط فيه ?category=mobiles (مثلاً من روابط الأقسام في الصفحة الرئيسية)،
+    // نطبّق فلتر القسم ده تلقائياً على طول
+    const initialParams = new URLSearchParams(window.location.search);
+    const categoryFromUrl = initialParams.get('category');
+    if (categoryFromUrl && categoryLabels[categoryFromUrl]) {
+      filterState.categories.add(categoryFromUrl);
+    }
+    const locationFromUrl = initialParams.get('location');
+    if (locationFromUrl && locationLabels[locationFromUrl]) {
+      filterState.location = locationFromUrl;
+    }
+
     syncAllFilterUI();
     loadProducts();
 
