@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>آيفون 13 برو - حالة ممتازة | دكان</title>
+
+  <!-- ============ Google Fonts: نفس نظام الخطوط المستخدم في باقي الموقع ============ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- ============ Tailwind CSS ============ -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0A0908',
+            surface: '#15130F',
+            surface2: '#1C1A14',
+            bone: '#F5F1E8',
+            muted: '#948E80',
+            gold: {
+              300: '#E8D488',
+              400: '#D9BB55',
+              500: '#C9A227',
+              600: '#A8811C',
+            },
+            violet: {
+              300: '#C4B5FD',
+              400: '#A78BFA',
+              500: '#8B5CF6',
+            },
+          },
+          fontFamily: {
+            display: ['Cairo', 'sans-serif'],
+            body: ['Tajawal', 'sans-serif'],
+            num: ['Inter', 'Tajawal', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ============ Lucide Icons ============ -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ============ نظام التصميم: تدرجات وحركات مساعدة ============ -->
+  <style>
+    body {
+      background-color: #0A0908;
+      background-image:
+        radial-gradient(ellipse 900px 650px at 88% -8%, rgba(201, 162, 39, 0.10), transparent 60%),
+        radial-gradient(ellipse 750px 550px at -8% 108%, rgba(139, 92, 246, 0.08), transparent 60%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
+    .glow-gold:hover { box-shadow: 0 0 28px rgba(201, 162, 39, 0.35); }
+    ::selection { background: rgba(201, 162, 39, 0.35); color: #F5F1E8; }
+
+    #mobileMenu {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+    #mobileMenu.open { grid-template-rows: 1fr; }
+    #mobileMenu > div { overflow: hidden; }
+
+    /* ============ حركة ظهور رسالة النجاح المنبثقة (نفس نمط باقي الموقع) ============ */
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(-16px) scale(0.96); }
+    }
+    .toast-enter { animation: toast-in 0.35s ease-out forwards; }
+    .toast-leave { animation: toast-out 0.3s ease-in forwards; }
+
+    /* ============ نبضة خفيفة لقلب المفضلة عند التفعيل ============ */
+    @keyframes heart-pop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+    .heart-pop { animation: heart-pop 0.35s ease; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-bone font-body antialiased">
+
+  <!-- =========================================================
+       الهيدر Header (نفس مكوّن الهيدر في باقي صفحات الموقع)
+       ========================================================= -->
+  <header class="w-full sticky top-0 z-50 bg-ink/85 backdrop-blur-md border-b border-white/[0.06]">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
+      <a href="index.html" class="flex items-center gap-2 shrink-0 group">
+        <span class="text-2xl font-display font-extrabold text-bone group-hover:text-gold-400 transition-colors">دكان</span>
+      </a>
+
+      <div class="hidden md:flex flex-1 max-w-xl">
+        <div class="w-full flex items-center bg-surface border border-white/10 rounded-lg px-3 py-2 focus-within:border-gold-500/60 transition-colors">
+          <i data-lucide="search" class="w-5 h-5 shrink-0 text-muted"></i>
+          <input type="text" placeholder="ابحث عن منتج..." class="w-full outline-none px-2 bg-transparent placeholder:text-muted text-bone" />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <button class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-400 to-gold-600 glow-gold transition-all hover:-translate-y-0.5">
+          <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          <span>أضف منتجك</span>
+        </button>
+        <a href="auth.html" data-account-link class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 hover:border-gold-500/40 transition-colors flex items-center justify-center w-9 h-9" aria-label="الحساب">
+          <i data-lucide="user" class="w-5 h-5"></i>
+        </a>
+        <button class="p-2 rounded-lg border border-white/10 text-muted hover:text-gold-400 md:hidden transition-colors" aria-label="فتح القائمة" id="menuToggle" aria-expanded="false" aria-controls="mobileMenu">
+          <i data-lucide="menu" class="w-5 h-5" id="menuIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="md:hidden px-4 pb-3">
+      <div class="w-full flex items-center bg-surface border border-white/10 rounded-lg px-3 py-2">
+        <i data-lucide="search" class="w-5 h-5 shrink-0 text-muted"></i>
+        <input type="text" placeholder="ابحث عن منتج..." class="w-full outline-none px-2 bg-transparent placeholder:text-muted text-bone" />
+      </div>
+    </div>
+
+    <div id="mobileMenu" class="md:hidden border-t border-white/[0.06]">
+      <div>
+        <ul class="max-w-7xl mx-auto px-4 pt-2 pb-1 flex flex-col text-sm">
+          <li><a href="index.html" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">الرئيسية</a></li>
+          <li><a href="search.html" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">كل المنتجات</a></li>
+          <li><a href="auth.html" class="block px-2 py-2.5 rounded-lg text-muted hover:text-gold-400 hover:bg-white/5 transition-colors">تسجيل الدخول</a></li>
+        </ul>
+        <div class="max-w-7xl mx-auto px-4 pb-4 pt-2">
+          <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-400 to-gold-600 glow-gold transition-all">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            <span>أضف منتجك</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       المحتوى الرئيسي
+       ========================================================= -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
+
+    <!-- مسار التنقل -->
+    <nav class="text-xs text-muted flex items-center gap-1.5 mb-6 flex-wrap">
+      <a href="index.html" class="hover:text-gold-400 transition-colors">الرئيسية</a>
+      <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+      <a href="search.html" class="hover:text-gold-400 transition-colors" id="breadcrumbCategory">منتجات</a>
+      <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+      <span class="text-bone" id="breadcrumbName">جاري التحميل...</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+      <!-- ============ العمود الرئيسي: المعرض + الوصف + التفاصيل ============ -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- ============ معرض الصور ============ -->
+        <div>
+          <div id="mainImageWrap" class="relative aspect-[4/3] sm:aspect-video bg-surface border border-white/[0.07] rounded-2xl flex items-center justify-center overflow-hidden">
+            <i id="mainImageIcon" data-lucide="image" class="w-16 h-16 text-muted"></i>
+
+            <!-- شارة الحالة أعلى الصورة -->
+            <span id="conditionBadge" class="absolute top-4 right-4 text-xs px-3 py-1 rounded-full border border-violet-500/40 text-violet-300 bg-ink/70 backdrop-blur-sm font-medium">مستعمل</span>
+
+            <!-- أزرار المفضلة والمشاركة أعلى الصورة -->
+            <div class="absolute top-4 left-4 flex items-center gap-2">
+              <button id="favoriteBtn" class="w-9 h-9 rounded-full bg-ink/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-muted hover:text-rose-400 transition-colors" aria-label="أضف للمفضلة">
+                <i data-lucide="heart" class="w-4 h-4"></i>
+              </button>
+              <button id="shareBtn" class="w-9 h-9 rounded-full bg-ink/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-muted hover:text-gold-400 transition-colors" aria-label="مشاركة الإعلان">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- الصور المصغّرة -->
+          <div id="thumbGallery" class="flex items-center gap-3 mt-3">
+            <!-- سيتم توليدها ديناميكياً من صور المنتج الفعلية -->
+          </div>
+        </div>
+
+        <!-- ============ عنوان المنتج والسعر (يظهر هنا في الموبايل فقط، وفي العمود الجانبي بالديسكتوب) ============ -->
+        <div class="lg:hidden">
+          <h1 id="productTitleMobile" class="text-xl font-display font-extrabold mb-2">جاري التحميل...</h1>
+          <p id="productPriceMobile" class="text-2xl font-num font-bold text-gold-400">-- جنيه</p>
+        </div>
+
+        <!-- ============ الوصف ============ -->
+        <div class="bg-surface border border-white/[0.07] rounded-2xl p-6">
+          <h2 class="font-display font-bold text-lg mb-3">الوصف</h2>
+          <p id="productDescription" class="text-sm text-muted leading-relaxed">
+            جاري تحميل وصف المنتج...
+          </p>
+        </div>
+
+        <!-- ============ تفاصيل ومواصفات المنتج ============ -->
+        <div class="bg-surface border border-white/[0.07] rounded-2xl p-6">
+          <h2 class="font-display font-bold text-lg mb-4">التفاصيل</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-4 text-sm">
+            <div>
+              <p class="text-muted text-xs mb-1">الحالة</p>
+              <p id="detailCondition" class="font-medium">--</p>
+            </div>
+            <div>
+              <p class="text-muted text-xs mb-1">القسم</p>
+              <p id="detailCategory" class="font-medium">--</p>
+            </div>
+            <div>
+              <p class="text-muted text-xs mb-1">هل السعر قابل للتفاوض؟</p>
+              <p id="detailNegotiable" class="font-medium">--</p>
+            </div>
+            <div>
+              <p class="text-muted text-xs mb-1">المحافظة</p>
+              <p id="detailLocation" class="font-medium">--</p>
+            </div>
+            <div>
+              <p class="text-muted text-xs mb-1">تاريخ النشر</p>
+              <p id="detailDate" class="font-medium font-num">--</p>
+            </div>
+            <div>
+              <p class="text-muted text-xs mb-1">المشاهدات</p>
+              <p id="detailViews" class="font-medium font-num flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-muted"></i> --</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ زر الإبلاغ عن الإعلان ============ -->
+        <button class="flex items-center gap-2 text-xs text-muted hover:text-rose-400 transition-colors">
+          <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+          الإبلاغ عن هذا الإعلان
+        </button>
+
+      </div>
+
+      <!-- ============ العمود الجانبي: السعر + بطاقة البائع ============ -->
+      <div class="space-y-5 lg:sticky lg:top-24">
+
+        <!-- بطاقة السعر (ديسكتوب فقط، لأنها ظاهرة أعلى المحتوى في الموبايل) -->
+        <div class="hidden lg:block bg-surface border border-white/[0.07] rounded-2xl p-6">
+          <h1 id="productTitleDesktop" class="text-xl font-display font-extrabold mb-2">جاري التحميل...</h1>
+          <p id="productPriceDesktop" class="text-3xl font-num font-bold text-gold-400 mb-4">-- جنيه</p>
+          <p class="text-xs text-muted flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-gold-400"></i> <span id="productLocationText">--</span></p>
+        </div>
+
+        <!-- بطاقة البائع -->
+        <div class="bg-surface border border-white/[0.07] rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div id="sellerAvatar" class="w-14 h-14 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center font-display font-bold text-ink text-lg shrink-0">؟</div>
+            <div>
+              <p id="sellerName" class="font-display font-bold">جاري التحميل...</p>
+              <div class="flex items-center gap-1 mt-0.5">
+                <span class="text-xs text-muted mr-1 font-num">بائع على دكان</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 text-xs text-muted mb-5 pb-5 border-b border-white/[0.07]">
+            <span class="flex items-center gap-1.5"><i data-lucide="phone" class="w-3.5 h-3.5"></i> <span id="contactMethodLabel">--</span></span>
+          </div>
+
+          <!-- زر التواصل مع البائع -->
+          <button id="contactSellerBtn" class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-300 to-gold-600 glow-gold transition-all duration-300 hover:-translate-y-0.5 mb-3">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            تواصل مع البائع
+          </button>
+
+          <!-- زر إظهار رقم الهاتف (مخفي بالبداية حماية للخصوصية) -->
+          <button id="revealPhoneBtn" class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-white/15 text-bone font-medium transition-all duration-300 hover:border-gold-400/50">
+            <i data-lucide="phone" class="w-4 h-4"></i>
+            <span id="phoneLabel">إظهار رقم الهاتف</span>
+          </button>
+        </div>
+
+        <!-- بطاقة نصائح الأمان -->
+        <div class="bg-surface/60 border border-gold-500/20 rounded-2xl p-5">
+          <h3 class="flex items-center gap-2 font-display font-bold text-sm mb-3">
+            <i data-lucide="shield-alert" class="w-4 h-4 text-gold-400"></i>
+            نصائح الأمان
+          </h3>
+          <ul class="space-y-2 text-xs text-muted leading-relaxed">
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold-400 mt-0.5 shrink-0"></i> عايِن المنتج شخصياً قبل ما تدفع أي مبلغ</li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold-400 mt-0.5 shrink-0"></i> قابل البائع في مكان عام ومزدحم</li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-gold-400 mt-0.5 shrink-0"></i> متشاركش بيانات حساسة زي كلمة السر أو الـ OTP</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ منتجات مشابهة ============ -->
+    <section class="mt-14">
+      <h2 class="text-xl font-display font-bold mb-6">منتجات مشابهة</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+        <a href="product.html" class="bg-surface border border-white/[0.07] rounded-lg overflow-hidden flex flex-col transition-all hover:border-gold-500/30 hover:-translate-y-1">
+          <div class="aspect-square flex items-center justify-center border-b border-white/[0.07] bg-surface2">
+            <i data-lucide="image" class="w-8 h-8 text-muted"></i>
+          </div>
+          <div class="p-3 flex flex-col gap-1.5">
+            <span class="text-xs w-fit px-2 py-0.5 rounded-full border border-gold-500/40 text-gold-400 bg-gold-500/10">جديد</span>
+            <h3 class="font-medium text-sm">سامسونج Galaxy S23</h3>
+            <p class="text-sm text-gold-400 font-num font-semibold">21,000 جنيه</p>
+          </div>
+        </a>
+
+        <a href="product.html" class="bg-surface border border-white/[0.07] rounded-lg overflow-hidden flex flex-col transition-all hover:border-violet-500/30 hover:-translate-y-1">
+          <div class="aspect-square flex items-center justify-center border-b border-white/[0.07] bg-surface2">
+            <i data-lucide="image" class="w-8 h-8 text-muted"></i>
+          </div>
+          <div class="p-3 flex flex-col gap-1.5">
+            <span class="text-xs w-fit px-2 py-0.5 rounded-full border border-violet-500/40 text-violet-300 bg-violet-500/10">مستعمل</span>
+            <h3 class="font-medium text-sm">آيفون 12</h3>
+            <p class="text-sm text-gold-400 font-num font-semibold">11,800 جنيه</p>
+          </div>
+        </a>
+
+        <a href="product.html" class="bg-surface border border-white/[0.07] rounded-lg overflow-hidden flex flex-col transition-all hover:border-violet-500/30 hover:-translate-y-1">
+          <div class="aspect-square flex items-center justify-center border-b border-white/[0.07] bg-surface2">
+            <i data-lucide="image" class="w-8 h-8 text-muted"></i>
+          </div>
+          <div class="p-3 flex flex-col gap-1.5">
+            <span class="text-xs w-fit px-2 py-0.5 rounded-full border border-violet-500/40 text-violet-300 bg-violet-500/10">مستعمل</span>
+            <h3 class="font-medium text-sm">شاومي Redmi Note 12</h3>
+            <p class="text-sm text-gold-400 font-num font-semibold">6,200 جنيه</p>
+          </div>
+        </a>
+
+        <a href="product.html" class="bg-surface border border-white/[0.07] rounded-lg overflow-hidden flex flex-col transition-all hover:border-gold-500/30 hover:-translate-y-1">
+          <div class="aspect-square flex items-center justify-center border-b border-white/[0.07] bg-surface2">
+            <i data-lucide="image" class="w-8 h-8 text-muted"></i>
+          </div>
+          <div class="p-3 flex flex-col gap-1.5">
+            <span class="text-xs w-fit px-2 py-0.5 rounded-full border border-gold-500/40 text-gold-400 bg-gold-500/10">جديد</span>
+            <h3 class="font-medium text-sm">جراب + شاحن آيفون</h3>
+            <p class="text-sm text-gold-400 font-num font-semibold">450 جنيه</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ حاوية رسالة النجاح المنبثقة (Toast) ============ -->
+  <div id="toastContainer" class="fixed top-5 inset-x-0 z-[100] flex justify-center px-4 pointer-events-none"></div>
+
+  <!-- =========================================================
+       الفوتر Footer (مختصر لأن الصفحة داخلية)
+       ========================================================= -->
+  <footer class="border-t border-white/[0.06] mt-auto bg-ink">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted">
+      <span class="font-num">© 2026 دكان. جميع الحقوق محفوظة.</span>
+      <div class="flex items-center gap-4">
+        <a href="#" class="hover:text-gold-400 transition-colors">سياسة الخصوصية</a>
+        <a href="#" class="hover:text-gold-400 transition-colors">الشروط والأحكام</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { db, doc, getDoc } from './firebase-config.js';
+    import { wireAuthHeader } from './auth-header.js';
+
+    lucide.createIcons();
+    wireAuthHeader();
+
+    const categoryLabels = {
+      mobiles: 'موبايلات', electronics: 'إلكترونيات', furniture: 'أثاث ومنزل', cars: 'سيارات', fashion: 'أزياء', other: 'أخرى',
+    };
+    const locationLabels = { cairo: 'القاهرة', giza: 'الجيزة', alex: 'الإسكندرية', mansoura: 'المنصورة', other: 'محافظة أخرى' };
+    const contactMethodLabels = { call: 'مكالمة فقط', chat: 'رسائل داخل الموقع', both: 'مكالمة أو رسائل' };
+
+    let currentProduct = null;
+
+    // ============ جلب بيانات المنتج الحقيقية من Firestore حسب المعرّف اللي في رابط الصفحة ============
+    async function loadProduct() {
+      const productId = new URLSearchParams(window.location.search).get('id');
+
+      if (!productId) {
+        document.querySelector('main').innerHTML = `
+          <div class="text-center py-24">
+            <p class="text-muted">مفيش معرّف منتج في الرابط. ارجع لصفحة <a href="search.html" class="text-gold-400 hover:underline">كل المنتجات</a>.</p>
+          </div>`;
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, 'products', productId));
+        if (!snap.exists()) {
+          document.querySelector('main').innerHTML = `
+            <div class="text-center py-24">
+              <p class="text-muted">المنتج ده مش موجود أو اتشال. ارجع لصفحة <a href="search.html" class="text-gold-400 hover:underline">كل المنتجات</a>.</p>
+            </div>`;
+          return;
+        }
+        currentProduct = { id: snap.id, ...snap.data() };
+        renderProduct(currentProduct);
+      } catch (err) {
+        console.error(err);
+        document.querySelector('main').innerHTML = `
+          <div class="text-center py-24">
+            <p class="text-rose-400">تعذر تحميل بيانات المنتج، حاول تحدّث الصفحة.</p>
+          </div>`;
+      }
+    }
+
+    function renderProduct(p) {
+      document.title = `${p.name} | دكان`;
+
+      // العنوان والفتات (breadcrumb)
+      document.getElementById('breadcrumbName').textContent = p.name;
+      const breadcrumbCategory = document.getElementById('breadcrumbCategory');
+      breadcrumbCategory.textContent = categoryLabels[p.category] || 'منتجات';
+      breadcrumbCategory.href = `search.html`;
+
+      // العنوان والسعر (نسخة الموبايل والديسكتوب)
+      document.getElementById('productTitleMobile').textContent = p.name;
+      document.getElementById('productTitleDesktop').textContent = p.name;
+      const priceText = `${Number(p.price).toLocaleString('en-US')} جنيه`;
+      document.getElementById('productPriceMobile').textContent = priceText;
+      document.getElementById('productPriceDesktop').textContent = priceText;
+      document.getElementById('productLocationText').textContent = locationLabels[p.location] || 'غير محدد';
+
+      // شارة الحالة على الصورة
+      const isNew = p.condition === 'new';
+      const badge = document.getElementById('conditionBadge');
+      badge.textContent = isNew ? 'جديد' : 'مستعمل';
+      badge.className = 'absolute top-4 right-4 text-xs px-3 py-1 rounded-full border bg-ink/70 backdrop-blur-sm font-medium ' +
+        (isNew ? 'border-gold-500/40 text-gold-400' : 'border-violet-500/40 text-violet-300');
+
+      // الوصف
+      document.getElementById('productDescription').textContent = p.description || 'مفيش وصف مكتوب لهذا المنتج.';
+
+      // تفاصيل ومواصفات
+      document.getElementById('detailCondition').textContent = isNew ? 'جديد' : 'مستعمل';
+      document.getElementById('detailCategory').textContent = categoryLabels[p.category] || 'أخرى';
+      document.getElementById('detailNegotiable').textContent = p.negotiable ? 'نعم' : 'لا';
+      document.getElementById('detailLocation').textContent = locationLabels[p.location] || 'غير محدد';
+      document.getElementById('detailDate').textContent = p.createdAt && p.createdAt.toDate
+        ? p.createdAt.toDate().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })
+        : '--';
+      document.getElementById('detailViews').innerHTML = `<i data-lucide="eye" class="w-3.5 h-3.5 text-muted"></i> ${p.views ?? 0}`;
+
+      // بيانات البائع
+      document.getElementById('sellerName').textContent = p.ownerName || 'مستخدم دكان';
+      document.getElementById('sellerAvatar').textContent = (p.ownerName || 'د').trim().charAt(0);
+      document.getElementById('contactMethodLabel').textContent = contactMethodLabels[p.contactMethod] || 'مكالمة أو رسائل';
+
+      // معرض الصور: الصورة الرئيسية + الصور المصغّرة
+      const mainImageWrap = document.getElementById('mainImageWrap');
+      const thumbGallery = document.getElementById('thumbGallery');
+      const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [];
+
+      function setMainImage(url) {
+        const existingImg = mainImageWrap.querySelector('img');
+        if (existingImg) existingImg.remove();
+        const icon = document.getElementById('mainImageIcon');
+        if (url) {
+          icon.classList.add('hidden');
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = p.name;
+          img.className = 'absolute inset-0 w-full h-full object-cover';
+          mainImageWrap.prepend(img);
+        } else {
+          icon.classList.remove('hidden');
+        }
+      }
+
+      if (images.length > 0) {
+        setMainImage(images[0]);
+        thumbGallery.innerHTML = images.map((url, i) => `
+          <button class="thumb-btn ${i === 0 ? 'active border-gold-500/60' : 'border-white/10'} w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-surface border-2 overflow-hidden shrink-0 transition-colors" data-url="${url}">
+            <img src="${url}" alt="صورة ${i + 1}" class="w-full h-full object-cover" />
+          </button>
+        `).join('');
+        thumbGallery.querySelectorAll('.thumb-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            thumbGallery.querySelectorAll('.thumb-btn').forEach((b) => b.classList.remove('active', 'border-gold-500/60'));
+            thumbGallery.querySelectorAll('.thumb-btn').forEach((b) => b.classList.add('border-white/10'));
+            btn.classList.add('active', 'border-gold-500/60');
+            btn.classList.remove('border-white/10');
+            setMainImage(btn.dataset.url);
+          });
+        });
+      } else {
+        thumbGallery.innerHTML = '';
+      }
+
+      lucide.createIcons();
+    }
+
+    loadProduct();
+
+    // ============ رسالة النجاح المنبثقة (نفس نمط باقي صفحات الموقع) ============
+    const toastContainer = document.getElementById('toastContainer');
+
+    function showToast(title, message) {
+      toastContainer.innerHTML = '';
+      const toast = document.createElement('div');
+      toast.className =
+        'toast-enter pointer-events-auto flex items-center gap-3 bg-surface border border-gold-500/40 text-bone rounded-xl px-5 py-4 shadow-[0_0_30px_rgba(201,162,39,0.25)] max-w-sm w-full';
+      toast.innerHTML = `
+        <span class="shrink-0 w-9 h-9 rounded-full bg-gold-500/15 border border-gold-500/40 flex items-center justify-center">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-gold-400"></i>
+        </span>
+        <div class="text-sm">
+          <p class="font-display font-bold text-bone">${title}</p>
+          <p class="text-muted mt-0.5">${message}</p>
+        </div>
+      `;
+      toastContainer.appendChild(toast);
+      lucide.createIcons();
+      setTimeout(() => {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-leave');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ============ زر المفضلة (Favorite Toggle) ============
+    const favoriteBtn = document.getElementById('favoriteBtn');
+    let isFavorite = false;
+    favoriteBtn.addEventListener('click', () => {
+      isFavorite = !isFavorite;
+      const icon = favoriteBtn.querySelector('i');
+      favoriteBtn.classList.toggle('text-rose-400', isFavorite);
+      favoriteBtn.classList.toggle('border-rose-400/40', isFavorite);
+      icon.classList.add('heart-pop');
+      // TODO (خطوة الـ backend): حفظ حالة المفضلة الفعلية في Firestore مرتبطة بحساب المستخدم
+      setTimeout(() => icon.classList.remove('heart-pop'), 350);
+    });
+
+    // ============ زر المشاركة (Web Share API مع بديل نسخ الرابط) ============
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+      const shareData = { title: `${currentProduct?.name || 'منتج'} - دكان`, url: window.location.href };
+      if (navigator.share) {
+        try { await navigator.share(shareData); } catch (e) { /* المستخدم لغى المشاركة */ }
+      } else {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast('تم نسخ الرابط 🎉', 'شارك الإعلان مع أي حد تحب.');
+        } catch (e) {
+          showToast('تعذّر النسخ', 'جرب تاني أو انسخ الرابط يدوياً.');
+        }
+      }
+    });
+
+    // ============ إظهار رقم الهاتف الحقيقي المخزّن مع المنتج (بعد ضغطة المستخدم، حماية للخصوصية) ============
+    const revealPhoneBtn = document.getElementById('revealPhoneBtn');
+    const phoneLabel = document.getElementById('phoneLabel');
+    let phoneRevealed = false;
+
+    revealPhoneBtn.addEventListener('click', () => {
+      if (phoneRevealed || !currentProduct) return;
+      phoneRevealed = true;
+      phoneLabel.textContent = currentProduct.phone || 'رقم غير متاح';
+      phoneLabel.classList.add('font-num');
+      revealPhoneBtn.querySelector('i').setAttribute('data-lucide', 'phone-call');
+      lucide.createIcons();
+    });
+
+    // ============ زر التواصل مع البائع: فتح واتساب مباشرة برقم البائع الحقيقي ============
+    document.getElementById('contactSellerBtn').addEventListener('click', () => {
+      if (!currentProduct || !currentProduct.phone) {
+        showToast('تعذّر التواصل', 'مفيش رقم هاتف مسجل لهذا المنتج.');
+        return;
+      }
+      const localPhone = currentProduct.phone.replace(/\D/g, '');
+      const intlPhone = localPhone.startsWith('0') ? '2' + localPhone : localPhone;
+      const message = encodeURIComponent(`أهلاً، أنا مهتم بمنتجك "${currentProduct.name}" على دكان.`);
+      window.open(`https://wa.me/${intlPhone}?text=${message}`, '_blank');
+    });
+
+    // ============ قائمة الهمبرجر التفاعلية (نفس منطق باقي صفحات الموقع) ============
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+
+    function setMenuState(open) {
+      mobileMenu.classList.toggle('open', open);
+      menuToggle.setAttribute('aria-expanded', String(open));
+      menuIcon.setAttribute('data-lucide', open ? 'x' : 'menu');
+      lucide.createIcons();
+    }
+
+    menuToggle.addEventListener('click', () => setMenuState(!mobileMenu.classList.contains('open')));
+    mobileMenu.querySelectorAll('a, button').forEach((el) => el.addEventListener('click', () => setMenuState(false)));
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) setMenuState(false);
+    });
+  </script>
+
+</body>
+</html>

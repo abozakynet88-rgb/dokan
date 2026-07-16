@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول | دكان</title>
+
+  <!-- ============ Google Fonts: نفس نظام الخطوط المستخدم في باقي الموقع ============ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- ============ Tailwind CSS ============ -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* نفس إعدادات نظام التصميم (Design Tokens) المستخدمة في index.html بالظبط، عشان الهوية البصرية تفضل موحدة عبر كل صفحات الموقع */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0A0908',
+            surface: '#15130F',
+            surface2: '#1C1A14',
+            bone: '#F5F1E8',
+            muted: '#948E80',
+            gold: {
+              300: '#E8D488',
+              400: '#D9BB55',
+              500: '#C9A227',
+              600: '#A8811C',
+            },
+            violet: {
+              300: '#C4B5FD',
+              400: '#A78BFA',
+              500: '#8B5CF6',
+            },
+          },
+          fontFamily: {
+            display: ['Cairo', 'sans-serif'],
+            body: ['Tajawal', 'sans-serif'],
+            num: ['Inter', 'Tajawal', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ============ Lucide Icons ============ -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ============ نظام التصميم: تدرجات وحركات مساعدة (نفس أسلوب باقي الموقع) ============ -->
+  <style>
+    body {
+      background-color: #0A0908;
+      background-image:
+        radial-gradient(ellipse 900px 650px at 88% -8%, rgba(201, 162, 39, 0.16), transparent 60%),
+        radial-gradient(ellipse 750px 550px at -8% 108%, rgba(139, 92, 246, 0.14), transparent 60%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
+    .glow-gold:hover {
+      box-shadow: 0 0 28px rgba(201, 162, 39, 0.35);
+    }
+
+    ::selection {
+      background: rgba(201, 162, 39, 0.35);
+      color: #F5F1E8;
+    }
+
+    /* ============ حركة الدوائر الضبابية في الخلفية (نفس حركة الهيرو) ============ */
+    @keyframes drift-a {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(40px, -30px) scale(1.12); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes drift-b {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(-35px, 25px) scale(1.08); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    .orb-a { animation: drift-a 14s ease-in-out infinite; }
+    .orb-b { animation: drift-b 18s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .orb-a, .orb-b { animation: none; }
+    }
+
+    /* ============ حركة ظهور واختفاء رسالة النجاح المنبثقة (نفس نمط نموذج التواصل) ============ */
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(-16px) scale(0.96); }
+    }
+    .toast-enter { animation: toast-in 0.35s ease-out forwards; }
+    .toast-leave { animation: toast-out 0.3s ease-in forwards; }
+
+    /* ============ حركة الانتقال بين تبويبي الدخول وإنشاء الحساب ============ */
+    .auth-panel {
+      display: none;
+    }
+    .auth-panel.active {
+      display: block;
+      animation: panel-in 0.3s ease;
+    }
+    @keyframes panel-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-bone font-body antialiased">
+
+  <!-- =========================================================
+       شريط علوي بسيط: شعار + رابط عودة للرئيسية
+       (صفحة تسجيل الدخول لا تحتاج الهيدر الكامل بالبحث والأقسام)
+       ========================================================= -->
+  <header class="w-full px-4 py-5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="index.html" class="text-2xl font-display font-extrabold text-bone hover:text-gold-400 transition-colors">دكان</a>
+      <a href="index.html" class="text-sm text-muted hover:text-gold-400 transition-colors flex items-center gap-1.5">
+        العودة للرئيسية
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       المحتوى الرئيسي: بطاقة تسجيل الدخول / إنشاء الحساب
+       ========================================================= -->
+  <main class="flex-1 relative overflow-hidden flex items-center justify-center px-4 py-10">
+
+    <!-- الدوائر الضبابية المتحركة في الخلفية -->
+    <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div class="orb-a absolute top-[-10%] right-[8%] w-[420px] h-[420px] rounded-full bg-gold-500/20 blur-[110px]"></div>
+      <div class="orb-b absolute bottom-[-15%] left-[5%] w-[380px] h-[380px] rounded-full bg-violet-500/20 blur-[110px]"></div>
+    </div>
+
+    <div class="w-full max-w-md">
+
+      <!-- بطاقة النموذج -->
+      <div class="bg-surface/70 backdrop-blur-md border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-[0_0_60px_rgba(0,0,0,0.4)]">
+
+        <!-- عنوان ترحيبي -->
+        <div class="text-center mb-6">
+          <h1 class="font-display font-extrabold text-2xl mb-1">أهلاً بيك في دكان</h1>
+          <p class="text-muted text-sm">سجّل دخولك أو اعمل حساب جديد عشان تبدأ تبيع وتشتري</p>
+        </div>
+
+        <!-- مبدّل التبويبات: تسجيل الدخول / إنشاء حساب -->
+        <div class="grid grid-cols-2 gap-2 p-1 bg-ink/60 border border-white/10 rounded-xl mb-6" role="tablist">
+          <button
+            type="button"
+            id="tabLoginBtn"
+            class="tab-btn px-4 py-2.5 rounded-lg text-sm font-display font-bold transition-all"
+            role="tab"
+            aria-selected="true"
+          >
+            تسجيل الدخول
+          </button>
+          <button
+            type="button"
+            id="tabSignupBtn"
+            class="tab-btn px-4 py-2.5 rounded-lg text-sm font-display font-bold transition-all"
+            role="tab"
+            aria-selected="false"
+          >
+            إنشاء حساب
+          </button>
+        </div>
+
+        <!-- ====== تبويب: تسجيل الدخول ====== -->
+        <div id="loginPanel" class="auth-panel active">
+          <form id="loginForm" novalidate class="space-y-4">
+
+            <div>
+              <label for="loginEmail" class="block text-sm text-muted mb-1.5">البريد الإلكتروني</label>
+              <input
+                id="loginEmail"
+                name="email"
+                type="email"
+                required
+                placeholder="example@email.com"
+                dir="ltr"
+                class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)] font-num"
+              />
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="loginPassword" class="block text-sm text-muted">كلمة المرور</label>
+                <a href="#" class="text-xs text-gold-400 hover:text-gold-300 transition-colors">نسيت كلمة المرور؟</a>
+              </div>
+              <div class="relative">
+                <input
+                  id="loginPassword"
+                  name="password"
+                  type="password"
+                  required
+                  minlength="6"
+                  placeholder="••••••••"
+                  dir="ltr"
+                  class="w-full rounded-lg px-4 py-3 pl-11 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)]"
+                />
+                <button type="button" class="toggle-password absolute left-3 top-1/2 -translate-y-1/2 text-muted hover:text-gold-400 transition-colors" data-target="loginPassword" aria-label="إظهار كلمة المرور">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full px-6 py-3 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-300 to-gold-600 glow-gold transition-all duration-300 hover:-translate-y-0.5"
+            >
+              تسجيل الدخول
+            </button>
+          </form>
+        </div>
+
+        <!-- ====== تبويب: إنشاء حساب ====== -->
+        <div id="signupPanel" class="auth-panel">
+          <form id="signupForm" novalidate class="space-y-4">
+
+            <div>
+              <label for="signupName" class="block text-sm text-muted mb-1.5">الاسم بالكامل</label>
+              <input
+                id="signupName"
+                name="name"
+                type="text"
+                required
+                placeholder="اكتب اسمك بالكامل"
+                class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)]"
+              />
+            </div>
+
+            <div>
+              <label for="signupEmail" class="block text-sm text-muted mb-1.5">البريد الإلكتروني</label>
+              <input
+                id="signupEmail"
+                name="email"
+                type="email"
+                required
+                placeholder="example@email.com"
+                dir="ltr"
+                class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)] font-num"
+              />
+            </div>
+
+            <div>
+              <label for="signupPhone" class="block text-sm text-muted mb-1.5">رقم الهاتف</label>
+              <input
+                id="signupPhone"
+                name="phone"
+                type="tel"
+                required
+                placeholder="01xxxxxxxxx"
+                dir="ltr"
+                class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)] font-num"
+              />
+            </div>
+
+            <div>
+              <label for="signupPassword" class="block text-sm text-muted mb-1.5">كلمة المرور</label>
+              <div class="relative">
+                <input
+                  id="signupPassword"
+                  name="password"
+                  type="password"
+                  required
+                  minlength="6"
+                  placeholder="6 أحرف على الأقل"
+                  dir="ltr"
+                  class="w-full rounded-lg px-4 py-3 pl-11 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)]"
+                />
+                <button type="button" class="toggle-password absolute left-3 top-1/2 -translate-y-1/2 text-muted hover:text-gold-400 transition-colors" data-target="signupPassword" aria-label="إظهار كلمة المرور">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label for="signupPasswordConfirm" class="block text-sm text-muted mb-1.5">تأكيد كلمة المرور</label>
+              <input
+                id="signupPasswordConfirm"
+                name="passwordConfirm"
+                type="password"
+                required
+                minlength="6"
+                placeholder="أعد كتابة كلمة المرور"
+                dir="ltr"
+                class="w-full rounded-lg px-4 py-3 bg-white/5 border border-white/10 text-bone placeholder:text-muted/70 outline-none transition-all duration-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/30 focus:shadow-[0_0_20px_rgba(201,162,39,0.25)]"
+              />
+              <!-- رسالة خطأ عدم تطابق كلمة المرور -->
+              <p id="passwordMismatchError" class="hidden text-xs text-rose-400 mt-1.5">كلمتا المرور غير متطابقتين</p>
+            </div>
+
+            <label class="flex items-start gap-2.5 text-xs text-muted cursor-pointer select-none">
+              <input id="agreeTerms" type="checkbox" required class="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 accent-gold-500" />
+              <span>موافق على <a href="#" class="text-gold-400 hover:text-gold-300 transition-colors">الشروط والأحكام</a> و<a href="#" class="text-gold-400 hover:text-gold-300 transition-colors">سياسة الخصوصية</a></span>
+            </label>
+
+            <button
+              type="submit"
+              class="w-full px-6 py-3 rounded-lg font-display font-bold text-ink bg-gradient-to-l from-gold-300 to-gold-600 glow-gold transition-all duration-300 hover:-translate-y-0.5"
+            >
+              إنشاء الحساب
+            </button>
+          </form>
+        </div>
+
+        <!-- فاصل "أو" -->
+        <div class="flex items-center gap-3 my-6">
+          <div class="flex-1 h-px bg-white/10"></div>
+          <span class="text-xs text-muted">أو</span>
+          <div class="flex-1 h-px bg-white/10"></div>
+        </div>
+
+        <!-- الدخول عبر جوجل -->
+        <button type="button" id="googleAuthBtn" class="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg border border-white/15 bg-white/[0.03] text-bone font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-gold-400/50">
+          <svg class="w-5 h-5" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+            <path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/>
+            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+          </svg>
+          <span>الدخول عبر جوجل</span>
+        </button>
+
+      </div>
+
+      <!-- تنويه صغير أسفل البطاقة -->
+      <p class="text-center text-xs text-muted mt-6">
+        بالمتابعة، انت موافق على شروط استخدام دكان وسياسة الخصوصية الخاصة بينا
+      </p>
+    </div>
+  </main>
+
+  <!-- ============ حاوية رسالة النجاح المنبثقة (Toast) ============ -->
+  <div id="toastContainer" class="fixed top-5 inset-x-0 z-[100] flex justify-center px-4 pointer-events-none">
+    <!-- سيتم حقن رسالة النجاح هنا ديناميكياً عبر JavaScript -->
+  </div>
+
+  <script type="module">
+    import {
+      auth, db, googleProvider,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup,
+      onAuthStateChanged, updateProfile,
+      doc, setDoc, serverTimestamp,
+    } from './firebase-config.js';
+
+    lucide.createIcons();
+
+    // ============ لو المستخدم مسجل دخول أصلاً، رجّعه للرئيسية على طول ============
+    onAuthStateChanged(auth, (user) => {
+      if (user) window.location.href = 'index.html';
+    });
+
+    // ============ ترجمة أكواد أخطاء Firebase لرسائل عربية مفهومة ============
+    function translateAuthError(code) {
+      const map = {
+        'auth/email-already-in-use': 'البريد الإلكتروني ده مسجل بحساب موجود بالفعل.',
+        'auth/invalid-email': 'صيغة البريد الإلكتروني غير صحيحة.',
+        'auth/weak-password': 'كلمة المرور ضعيفة، لازم تكون 6 أحرف على الأقل.',
+        'auth/user-not-found': 'مفيش حساب مسجل بالبريد الإلكتروني ده.',
+        'auth/wrong-password': 'كلمة المرور غير صحيحة.',
+        'auth/invalid-credential': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+        'auth/too-many-requests': 'محاولات كتير غلط، حاول تاني بعد شوية.',
+        'auth/popup-closed-by-user': 'تم إغلاق نافذة جوجل قبل إتمام الدخول.',
+        'auth/network-request-failed': 'في مشكلة بالاتصال بالإنترنت، تأكد من اتصالك وحاول تاني.',
+      };
+      return map[code] || 'حصل خطأ غير متوقع، حاول تاني.';
+    }
+
+    // ============ التبديل بين تبويب تسجيل الدخول وتبويب إنشاء الحساب ============
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    const tabSignupBtn = document.getElementById('tabSignupBtn');
+    const loginPanel = document.getElementById('loginPanel');
+    const signupPanel = document.getElementById('signupPanel');
+
+    function setActiveTab(tab) {
+      const isLogin = tab === 'login';
+
+      loginPanel.classList.toggle('active', isLogin);
+      signupPanel.classList.toggle('active', !isLogin);
+
+      tabLoginBtn.setAttribute('aria-selected', String(isLogin));
+      tabSignupBtn.setAttribute('aria-selected', String(!isLogin));
+
+      // تلوين التبويب النشط بالذهبي والباقي بلون محايد
+      tabLoginBtn.className = 'tab-btn px-4 py-2.5 rounded-lg text-sm font-display font-bold transition-all ' +
+        (isLogin ? 'bg-gold-500/15 text-gold-400 border border-gold-500/30' : 'text-muted hover:text-bone');
+      tabSignupBtn.className = 'tab-btn px-4 py-2.5 rounded-lg text-sm font-display font-bold transition-all ' +
+        (!isLogin ? 'bg-gold-500/15 text-gold-400 border border-gold-500/30' : 'text-muted hover:text-bone');
+    }
+
+    tabLoginBtn.addEventListener('click', () => setActiveTab('login'));
+    tabSignupBtn.addEventListener('click', () => setActiveTab('signup'));
+    setActiveTab('login'); // الحالة الافتراضية عند فتح الصفحة
+
+    // ============ إظهار/إخفاء كلمة المرور ============
+    document.querySelectorAll('.toggle-password').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const icon = btn.querySelector('i');
+        const isHidden = input.type === 'password';
+
+        input.type = isHidden ? 'text' : 'password';
+        icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+        lucide.createIcons();
+      });
+    });
+
+    // ============ رسالة النجاح المنبثقة (نفس نمط نموذج التواصل في الصفحة الرئيسية) ============
+    const toastContainer = document.getElementById('toastContainer');
+
+    function showToast(title, message) {
+      toastContainer.innerHTML = '';
+
+      const toast = document.createElement('div');
+      toast.className =
+        'toast-enter pointer-events-auto flex items-center gap-3 bg-surface border border-gold-500/40 text-bone rounded-xl px-5 py-4 shadow-[0_0_30px_rgba(201,162,39,0.25)] max-w-sm w-full';
+
+      toast.innerHTML = `
+        <span class="shrink-0 w-9 h-9 rounded-full bg-gold-500/15 border border-gold-500/40 flex items-center justify-center">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-gold-400"></i>
+        </span>
+        <div class="text-sm">
+          <p class="font-display font-bold text-bone">${title}</p>
+          <p class="text-muted mt-0.5">${message}</p>
+        </div>
+      `;
+
+      toastContainer.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-leave');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ============ معالجة نموذج تسجيل الدخول ============
+    const loginForm = document.getElementById('loginForm');
+    const loginSubmitBtn = loginForm.querySelector('button[type="submit"]');
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!loginForm.checkValidity()) {
+        loginForm.reportValidity();
+        return;
+      }
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      loginSubmitBtn.disabled = true;
+      const originalText = loginSubmitBtn.textContent;
+      loginSubmitBtn.textContent = 'جاري تسجيل الدخول...';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast('تم تسجيل الدخول بنجاح 🎉', 'جاري تحويلك للصفحة الرئيسية...');
+        setTimeout(() => (window.location.href = 'index.html'), 1000);
+      } catch (err) {
+        showToast('تعذر تسجيل الدخول', translateAuthError(err.code));
+        loginSubmitBtn.disabled = false;
+        loginSubmitBtn.textContent = originalText;
+      }
+    });
+
+    // ============ معالجة نموذج إنشاء الحساب ============
+    const signupForm = document.getElementById('signupForm');
+    const passwordMismatchError = document.getElementById('passwordMismatchError');
+
+    const signupSubmitBtn = signupForm.querySelector('button[type="submit"]');
+
+    signupForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      if (!signupForm.checkValidity()) {
+        signupForm.reportValidity();
+        return;
+      }
+
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupPasswordConfirm').value;
+
+      if (password !== confirmPassword) {
+        passwordMismatchError.classList.remove('hidden');
+        return;
+      }
+      passwordMismatchError.classList.add('hidden');
+
+      signupSubmitBtn.disabled = true;
+      const originalText = signupSubmitBtn.textContent;
+      signupSubmitBtn.textContent = 'جاري إنشاء الحساب...';
+
+      try {
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = credential.user;
+
+        // تحديث الاسم الظاهر في حساب Firebase Auth نفسه
+        await updateProfile(user, { displayName: name });
+
+        // حفظ باقي بيانات المستخدم (الاسم والهاتف) في مستند خاص بيه في Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          name,
+          email,
+          phone,
+          createdAt: serverTimestamp(),
+        });
+
+        showToast('تم إنشاء حسابك بنجاح 🎉', 'أهلاً بيك في دكان، جاري تحويلك...');
+        setTimeout(() => (window.location.href = 'index.html'), 1000);
+      } catch (err) {
+        showToast('تعذر إنشاء الحساب', translateAuthError(err.code));
+        signupSubmitBtn.disabled = false;
+        signupSubmitBtn.textContent = originalText;
+      }
+    });
+
+    // ============ زرار الدخول عبر جوجل ============
+    document.getElementById('googleAuthBtn').addEventListener('click', async () => {
+      try {
+        const credential = await signInWithPopup(auth, googleProvider);
+        const user = credential.user;
+
+        // إنشاء/تحديث مستند المستخدم في Firestore (merge عشان ميمسحش بيانات موجودة)
+        await setDoc(
+          doc(db, 'users', user.uid),
+          {
+            name: user.displayName || '',
+            email: user.email || '',
+            photoURL: user.photoURL || '',
+            createdAt: serverTimestamp(),
+          },
+          { merge: true }
+        );
+
+        showToast('تم تسجيل الدخول بنجاح 🎉', 'جاري تحويلك للصفحة الرئيسية...');
+        setTimeout(() => (window.location.href = 'index.html'), 1000);
+      } catch (err) {
+        showToast('تعذر الدخول عبر جوجل', translateAuthError(err.code));
+      }
+    });
+  </script>
+
+</body>
+</html>
