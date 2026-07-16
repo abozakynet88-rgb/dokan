@@ -346,16 +346,44 @@
   <script type="module">
     import {
       auth, db, googleProvider,
-      createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signInWithRedirect, getRedirectResult,
       onAuthStateChanged, updateProfile,
       doc, setDoc, serverTimestamp,
     } from './firebase-config.js';
 
     lucide.createIcons();
 
-    // ============ لو المستخدم مسجل دخول أصلاً، رجّعه للرئيسية على طول ============
-    onAuthStateChanged(auth, (user) => {
-      if (user) window.location.href = 'index.html';
+    // ============ لو راجع تو من صفحة تسجيل دخول جوجل (بعد التحويل) ============
+    // بنمسك أي خطأ حصل في عملية التحويل نفسها بس (زي دومين مش مصرّح له).
+    // لو نجحت العملية، onAuthStateChanged تحت هو اللي هيتكفل بحفظ البيانات والتحويل
+    getRedirectResult(auth).catch((err) => {
+      console.error(err);
+      if (err && err.code) showToast('تعذر الدخول عبر جوجل', translateAuthError(err.code));
+    });
+
+    // ============ لو المستخدم مسجل دخول (سواء من قبل، أو تو راجع من تحويل جوجل) ============
+    // بنحفظ/نحدّث بياناته في Firestore (merge عشان ميمسحش بيانات موجودة) ثم نحوّله للرئيسية.
+    // (منتجاهلش الحالة دي لو نموذج الإيميل/الباسورد هو اللي بيتعامل مع التسجيل بنفسه،
+    // عشان ميحصلش تعارض مع رسالة النجاح والتحويل بتوعه)
+    let manualAuthInProgress = false;
+    onAuthStateChanged(auth, async (user) => {
+      if (!user || manualAuthInProgress) return;
+      try {
+        await setDoc(
+          doc(db, 'users', user.uid),
+          {
+            name: user.displayName || '',
+            email: user.email || '',
+            photoURL: user.photoURL || '',
+            createdAt: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      } catch (err) {
+        console.error(err);
+      }
+      window.location.href = 'index.html';
     });
 
     // ============ ترجمة أكواد أخطاء Firebase لرسائل عربية مفهومة ============
@@ -460,6 +488,7 @@
       loginSubmitBtn.disabled = true;
       const originalText = loginSubmitBtn.textContent;
       loginSubmitBtn.textContent = 'جاري تسجيل الدخول...';
+      manualAuthInProgress = true;
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
@@ -469,6 +498,7 @@
         showToast('تعذر تسجيل الدخول', translateAuthError(err.code));
         loginSubmitBtn.disabled = false;
         loginSubmitBtn.textContent = originalText;
+        manualAuthInProgress = false;
       }
     });
 
@@ -501,6 +531,7 @@
       signupSubmitBtn.disabled = true;
       const originalText = signupSubmitBtn.textContent;
       signupSubmitBtn.textContent = 'جاري إنشاء الحساب...';
+      manualAuthInProgress = true;
 
       try {
         const credential = await createUserWithEmailAndPassword(auth, email, password);
@@ -523,29 +554,17 @@
         showToast('تعذر إنشاء الحساب', translateAuthError(err.code));
         signupSubmitBtn.disabled = false;
         signupSubmitBtn.textContent = originalText;
+        manualAuthInProgress = false;
       }
     });
 
     // ============ زرار الدخول عبر جوجل ============
+    // بنستخدم signInWithRedirect بدل signInWithPopup، لأن نوافذ الـ popup
+    // كتير بتتقفل لوحدها على متصفحات الموبايل بسبب قيود الخصوصية بين النوافذ.
+    // النتيجة بترجع وتتعالج فوق في onAuthStateChanged بعد ما جوجل يرجّع اليوزر للموقع
     document.getElementById('googleAuthBtn').addEventListener('click', async () => {
       try {
-        const credential = await signInWithPopup(auth, googleProvider);
-        const user = credential.user;
-
-        // إنشاء/تحديث مستند المستخدم في Firestore (merge عشان ميمسحش بيانات موجودة)
-        await setDoc(
-          doc(db, 'users', user.uid),
-          {
-            name: user.displayName || '',
-            email: user.email || '',
-            photoURL: user.photoURL || '',
-            createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
-
-        showToast('تم تسجيل الدخول بنجاح 🎉', 'جاري تحويلك للصفحة الرئيسية...');
-        setTimeout(() => (window.location.href = 'index.html'), 1000);
+        await signInWithRedirect(auth, googleProvider);
       } catch (err) {
         showToast('تعذر الدخول عبر جوجل', translateAuthError(err.code));
       }
