@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function myEmail() { return request.auth.token.email.lower(); }
+    function myRole() {
+      return exists(/databases/$(database)/documents/roles/$(myEmail()))
+        ? get(/databases/$(database)/documents/roles/$(myEmail())).data.role
+        : 'customer';
+    }
+    function isTeam() { return isSignedIn() && (myRole() == 'team' || myRole() == 'admin'); }
+    function isAdmin() { return isSignedIn() && myRole() == 'admin'; }
+
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isTeam();
+    }
+
+    match /orders/{id} {
+      allow create: if isSignedIn();
+      allow read: if isSignedIn() &&
+        (resource.data.customerUid == request.auth.uid || isTeam());
+      allow update: if isTeam() ||
+        (isSignedIn() && resource.data.customerUid == request.auth.uid &&
+         request.resource.data.status in ['completed', 'returned']);
+      allow delete: if isAdmin();
+    }
+
+    match /roles/{email} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /suppliers/{id} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
